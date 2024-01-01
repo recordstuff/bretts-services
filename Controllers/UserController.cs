@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace bretts_services.Controllers;
 
+//[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
@@ -19,8 +22,9 @@ public class UserController : ControllerBase
         return Ok();
     }
 
-    [HttpPost(Name = "Login")]
-    public IActionResult Login(UserCredintials userCredintials)
+    [AllowAnonymous]
+    [HttpPost("login", Name = "Login")]
+    public async Task<IActionResult> Login(UserCredintials userCredintials)
     {
         if (userCredintials == null
         || string.IsNullOrWhiteSpace(userCredintials.Email)
@@ -29,11 +33,19 @@ public class UserController : ControllerBase
             return BadRequest();
         }
 
-        return Ok(_userService.Login(userCredintials));
+        var token = await _userService.Login(userCredintials);
+
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            return Ok(token);
+        }
+
+        return Unauthorized();
     }
 
     [HttpPost(Name = "Add")]
-    public IActionResult Add(UserCredintials userCredintials)
+    //[Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Add(UserCredintials userCredintials)
     {
         if (userCredintials == null
         || string.IsNullOrWhiteSpace(userCredintials.Email)
@@ -42,10 +54,12 @@ public class UserController : ControllerBase
             return BadRequest();
         }
 
-        // u r here
+        if (await _userService.Add(userCredintials))
+        {
+            // TODO: return user
+            return Created(null as string, string.Empty);
+        };
 
-        _userService.Add(userCredintials);
-
-        return Ok();
+        return Conflict();
     }
 }

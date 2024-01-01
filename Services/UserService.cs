@@ -1,34 +1,43 @@
-﻿using bretts_services.Utilities;
+﻿using Microsoft.Extensions.Options;
 
 namespace bretts_services.Services;
 
 public class UserService : IUserService
 {
     private readonly BrettsAppContext _brettsAppContext;
+    private readonly UserOptions _userOptions;
 
-    public UserService(BrettsAppContext brettsAppContext)
+    public UserService(BrettsAppContext brettsAppContext, IOptions<UserOptions> options)
     {
         _brettsAppContext = brettsAppContext;
+        _userOptions = options.Value;
     }
 
-    public string Login(UserCredintials userCredintials)
+    public async Task<string> Login(UserCredintials userCredintials)
     {
-        userCredintials.Email = userCredintials.Email.ToUpper();
+        userCredintials.Email = userCredintials.Email.ToLower();
 
-        var user = _brettsAppContext.Users.FirstOrDefault(u => u.Email.ToUpper() == userCredintials.Email);
+        var user = await _brettsAppContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
 
         if (user is null) return string.Empty;
 
         if (!Hashing.Verify(userCredintials.Password, user.Password, user.Salt)) return string.Empty;
 
-        // TODO: not blah blah blah (you are here)
-
-        return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, "blah", "blah", "blah");
+        return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience);
     }
 
-    public void Add(UserCredintials userCredintials)
+    public async Task<bool> Add(UserCredintials userCredintials)
     {
-        var user = new User();
+        userCredintials.Email = userCredintials.Email.ToLower();
+
+        var user = await _brettsAppContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
+        
+        if (user is not null)
+        {
+            return false;
+        }
+
+        user = new User();
 
         user.Email = userCredintials.Email;
 
@@ -37,6 +46,8 @@ public class UserService : IUserService
         user.Salt = salt;
 
         _brettsAppContext.Users.Add(user);
-        _brettsAppContext.SaveChanges();
+        var written = await _brettsAppContext.SaveChangesAsync();
+
+        return written != 0;
     }
 }

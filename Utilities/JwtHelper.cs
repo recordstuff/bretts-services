@@ -18,7 +18,7 @@ public static class JwtHelper
             new Claim("displayName", displayName),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
+        var key = new SymmetricSecurityKey(Convert.FromBase64String(signingKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var expires = DateTime.UtcNow.Add(TimeSpan.FromDays(1));

@@ -2,7 +2,7 @@
 
 public interface IUserService
 {
-    string Login(UserCredintials userCredintials);
+    Task<string> Login(UserCredintials userCredintials);
 
-    void Add(UserCredintials userCredintials);
+    Task<bool> Add(UserCredintials userCredintials);
 }
