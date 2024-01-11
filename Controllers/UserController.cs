@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace bretts_services.Controllers;
 
-//[Authorize]
+[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
@@ -24,16 +24,16 @@ public class UserController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login", Name = "Login")]
-    public async Task<IActionResult> Login(UserCredintials userCredintials)
+    public async Task<IActionResult> Login(UserCredentials userCredentials)
     {
-        if (userCredintials == null
-        || string.IsNullOrWhiteSpace(userCredintials.Email)
-        || string.IsNullOrWhiteSpace(userCredintials.Password))
+        if (userCredentials == null
+        || string.IsNullOrWhiteSpace(userCredentials.Email)
+        || string.IsNullOrWhiteSpace(userCredentials.Password))
         {
             return BadRequest();
         }
 
-        var token = await _userService.Login(userCredintials);
+        var token = await _userService.Login(userCredentials);
 
         if (!string.IsNullOrWhiteSpace(token))
         {
@@ -44,17 +44,17 @@ public class UserController : ControllerBase
     }
 
     [HttpPost(Name = "Add")]
-    //[Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Add(UserCredintials userCredintials)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Add(UserCredentials userCredentials)
     {
-        if (userCredintials == null
-        || string.IsNullOrWhiteSpace(userCredintials.Email)
-        || string.IsNullOrWhiteSpace(userCredintials.Password))
+        if (userCredentials == null
+        || string.IsNullOrWhiteSpace(userCredentials.Email)
+        || string.IsNullOrWhiteSpace(userCredentials.Password))
         {
             return BadRequest();
         }
 
-        if (await _userService.Add(userCredintials))
+        if (await _userService.Add(userCredentials))
         {
             // TODO: return user
             return Created(null as string, string.Empty);

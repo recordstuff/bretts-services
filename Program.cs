@@ -48,7 +48,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// get a cert!
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

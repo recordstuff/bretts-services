@@ -1,0 +1,12 @@
+# docker-compose.yml
+ 
+# Reference compose file version 3
+version: “3”
+services:
+# Service name is api-app
+  api-app:
+# build from Dockerfile
+    build: .
+# expose 8080 as hosting port & 8080 in container port
+    ports:
+    - 8080:8080

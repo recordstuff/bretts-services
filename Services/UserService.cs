@@ -13,7 +13,7 @@ public class UserService : IUserService
         _userOptions = options.Value;
     }
 
-    public async Task<string> Login(UserCredintials userCredintials)
+    public async Task<string> Login(UserCredentials userCredintials)
     {
         userCredintials.Email = userCredintials.Email.ToLower();
 
@@ -26,7 +26,7 @@ public class UserService : IUserService
         return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience);
     }
 
-    public async Task<bool> Add(UserCredintials userCredintials)
+    public async Task<bool> Add(UserCredentials userCredintials)
     {
         userCredintials.Email = userCredintials.Email.ToLower();
 
