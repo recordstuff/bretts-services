@@ -3,6 +3,23 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            var origin = builder.Configuration.GetValue<string>("AllowedCorsOrigin");
+
+            if (origin != null)
+            {
+                policy.WithOrigins(origin)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            }
+        });
+});
+
 var userOptions = builder.Configuration
     .GetSection(nameof(UserOptions))
     .Get<UserOptions>()!;
@@ -50,6 +67,8 @@ if (app.Environment.IsDevelopment())
 
 // get a cert!
 //app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
