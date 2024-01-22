@@ -8,11 +8,11 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         policy =>
         {
-            var origin = builder.Configuration.GetValue<string>("AllowedCorsOrigin");
+            var origins = builder.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>();
 
-            if (origin != null)
+            if (origins != null)
             {
-                policy.WithOrigins(origin)
+                policy.WithOrigins(origins)
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
