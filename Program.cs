@@ -3,6 +3,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddExceptionHandler<ExceptionHandler>();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -57,6 +59,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseExceptionHandler("/Error");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
