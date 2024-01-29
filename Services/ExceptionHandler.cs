@@ -2,7 +2,7 @@
 
 namespace bretts_services.Services;
 
-internal sealed class ExceptionHandler : IExceptionHandler
+public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
 
