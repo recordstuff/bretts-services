@@ -4,3 +4,9 @@ This project currently serves both a [React frontend](http://brettdrake.org) | [
 and an [Angular frontend](http://brettdrake.org:8008) | [repo](https://github.com/recordstuff/bretts-angular).
 
 It runs in a docker container and hits a MS SQL database running in a different docker container.
+
+## Points of Interest
+
+- [Program.cs](https://github.com/recordstuff/bretts-services/blob/master/Program.cs) where CORS, Auth, Jwt generation, global exception handling, and db access are set up.
+- [JwtHelper.cs](https://github.com/recordstuff/bretts-services/blob/master/Utilities/JwtHelper.cs) for Jwt creation.
+- [Hashing.cs](https://github.com/recordstuff/bretts-services/blob/master/Utilities/Hashing.cs) for reading and writing passwords
