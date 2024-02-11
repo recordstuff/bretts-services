@@ -1,19 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace bretts_services.Models.EF;
 
 public partial class User
 {
-    public long Id { get; set; }
+    public long UserID { get; set; }
 
-    public Guid Guid { get; set; }
+    public Guid UserGuid { get; set; }
 
+    [StringLength(256)]
     public string Email { get; set; } = null!;
 
+    [StringLength(64)]
     public byte[] Password { get; set; } = null!;
 
+    [StringLength(64)]
     public byte[] Salt { get; set; } = null!;
 
+    [StringLength(256)]
     public string? DisplayName { get; set; }
+
+    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }
