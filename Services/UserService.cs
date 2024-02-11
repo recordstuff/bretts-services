@@ -17,13 +17,17 @@ public class UserService : IUserService
     {
         userCredintials.Email = userCredintials.Email.ToLower();
 
-        var user = await _brettsAppContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
+        var user = await _brettsAppContext.Users
+            .Include("Roles")
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
 
         if (user is null) return string.Empty;
 
         if (!Hashing.Verify(userCredintials.Password, user.Password, user.Salt)) return string.Empty;
 
-        return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience);
+        var roles = user.Roles.Select(r => r.Name).ToList();
+
+        return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience, roles);
     }
 
     public async Task<bool> Add(UserCredentials userCredintials)
