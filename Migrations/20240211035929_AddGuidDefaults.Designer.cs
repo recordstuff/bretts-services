@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bretts_services.Models.EF;
 
@@ -11,9 +12,11 @@ using bretts_services.Models.EF;
 namespace bretts_services.Migrations
 {
     [DbContext(typeof(BrettsAppContext))]
-    partial class BrettsAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240211035929_AddGuidDefaults")]
+    partial class AddGuidDefaults
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

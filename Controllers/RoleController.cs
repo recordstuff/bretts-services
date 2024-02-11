@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace bretts_services.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin")]
 [ApiController]
 [Route("[controller]")]
 public class RoleController : ControllerBase
@@ -17,7 +17,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost(Name = "AddRole")]
-    //[Authorize(Roles = "Admin")]
     public async Task<IActionResult> Add(UserCredentials userCredentials)
     {
         if (userCredentials == null
