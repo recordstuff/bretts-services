@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace bretts_services.Controllers;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase
@@ -14,12 +14,6 @@ public class UserController : ControllerBase
     {
         _logger = logger;
         _userService = userService;
-    }
-
-    [HttpGet(Name = "Index")]
-    public IActionResult Index()
-    {
-        return Ok();
     }
 
     [AllowAnonymous]
@@ -43,8 +37,8 @@ public class UserController : ControllerBase
         return Unauthorized();
     }
 
-    [HttpPost(Name = "Add")]
-    [Authorize(Roles = "Admin")]
+    [HttpPost(Name = "AddUser")]
+    //[Authorize(Roles = "Admin")]
     public async Task<IActionResult> Add(UserCredentials userCredentials)
     {
         if (userCredentials == null
