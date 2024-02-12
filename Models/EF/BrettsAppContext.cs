@@ -12,13 +12,21 @@ public partial class BrettsAppContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Role>()
-            .Property(r => r.RoleGuid)
-            .HasDefaultValueSql("NEWID()");
+        modelBuilder.Entity<Role>(e =>
+        {
+            e.Property(r => r.RoleGuid)
+                .HasDefaultValueSql("NEWID()");
+        });
 
-        modelBuilder.Entity<User>()
-            .Property(r => r.UserGuid)
-            .HasDefaultValueSql("NEWID()");
+
+        modelBuilder.Entity<User>(e =>
+        {
+            e.Property(u => u.UserGuid)
+                .HasDefaultValueSql("NEWID()");
+
+            e.Property(u => u.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+        });
 
         base.OnModelCreating(modelBuilder);
     }

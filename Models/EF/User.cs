@@ -21,5 +21,7 @@ public partial class User
     [StringLength(256)]
     public string? DisplayName { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
     public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }
