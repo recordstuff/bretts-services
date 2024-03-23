@@ -63,9 +63,9 @@ public partial class BrettsAppContext : DbContext
         return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
 
-    public override Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken = default)
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return SaveChangesAsync(cancellationToken);
+        return SaveChangesAsync(true, cancellationToken);
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

@@ -49,6 +49,15 @@ public class UserService : IUserService
 
         user.Salt = salt;
 
+        var role = await _brettsAppContext.Roles.Where(r => r.Name == "User").FirstOrDefaultAsync();
+
+        if (role is null)
+        {
+            throw new KeyNotFoundException("The User Role is missing.");
+        }
+
+        user.Roles.Add(role);
+
         _brettsAppContext.Users.Add(user);
         var written = await _brettsAppContext.SaveChangesAsync();
 

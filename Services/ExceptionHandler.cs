@@ -13,12 +13,12 @@ public class ExceptionHandler : IExceptionHandler
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception ex, CancellationToken cancellationToken)
     {
-        _logger.LogError(ex, "Exception occurred: {ExceptionMessage}", ex.Message);
+        _logger.LogError(ex, "{ExceptionTimeUtc}: Exception occurred: {ExceptionMessage}", DateTime.UtcNow, ex.Message);
 
         var problemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
-            Title = "Internal Server Error"
+            Title = "Internal Server Error",
         };
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
