@@ -1,9 +1,11 @@
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// global exception handler
 
 builder.Services.AddExceptionHandler<ExceptionHandler>();
+
+// CORS
 
 builder.Services.AddCors(options =>
 {
@@ -21,6 +23,8 @@ builder.Services.AddCors(options =>
             }
         });
 });
+
+// authentication and authorization
 
 var userOptions = builder.Configuration
     .GetSection(nameof(UserOptions))
@@ -45,8 +49,16 @@ builder.Services.AddAuthentication(auth =>
     };
 });
 
+// EF dbcontext
+
 builder.Services.AddDbContext<BrettsAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BrettsDbConnection")));
+
+// automapper
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+// our options and services
 
 builder.Services.Configure<UserOptions>(
     builder.Configuration.GetSection(nameof(UserOptions)));
@@ -54,22 +66,25 @@ builder.Services.Configure<UserOptions>(
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
+
+// swagger
+
+builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen();
+
+// configure the request pipeline using the features that were added above
 
 var app = builder.Build();
 
 app.UseExceptionHandler("/Error");
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// get a cert!
+// TODO: get a cert!
 //app.UseHttpsRedirection();
 
 app.UseCors();

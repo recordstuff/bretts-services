@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace bretts_services.Models.EF;
+﻿namespace bretts_services.Models.EF;
 
 public partial class Role
 {

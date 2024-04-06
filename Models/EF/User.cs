@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace bretts_services.Models.EF;
+﻿namespace bretts_services.Models.EF;
 
 public partial class User
 {

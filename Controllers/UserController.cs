@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+using bretts_services.Models;
 
 namespace bretts_services.Controllers;
 
@@ -17,12 +17,11 @@ public class UserController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("login", Name = "Login")]
-    public async Task<IActionResult> Login(UserCredentials userCredentials)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(UserCredentials? userCredentials)
     {
-        if (userCredentials == null
-        || string.IsNullOrWhiteSpace(userCredentials.Email)
-        || string.IsNullOrWhiteSpace(userCredentials.Password))
+        if (string.IsNullOrWhiteSpace(userCredentials?.Email)
+         || string.IsNullOrWhiteSpace(userCredentials.Password))
         {
             return BadRequest();
         }
@@ -37,12 +36,24 @@ public class UserController : ControllerBase
         return Unauthorized();
     }
 
-    [HttpPost(Name = "AddUser")]
-    public async Task<IActionResult> Add(UserCredentials userCredentials)
+    [HttpGet("users")]
+    public async Task<IActionResult> Users(int page, int pageSize, string? searchText = null, Roles roleFilter = Roles.Any)
     {
-        if (userCredentials == null
-        || string.IsNullOrWhiteSpace(userCredentials.Email)
-        || string.IsNullOrWhiteSpace(userCredentials.Password))
+        if (page < 1)
+        {
+            return BadRequest("Page must be greater than 1.");
+        }
+
+        var paginationResult = await _userService.GetUsers(page, pageSize, searchText, roleFilter);
+
+        return Ok(paginationResult);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Add(UserCredentials? userCredentials)
+    {
+        if (string.IsNullOrWhiteSpace(userCredentials?.Email)
+         || string.IsNullOrWhiteSpace(userCredentials.Password))
         {
             return BadRequest();
         }

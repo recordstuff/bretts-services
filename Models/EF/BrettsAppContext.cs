@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-
-namespace bretts_services.Models.EF;
+﻿namespace bretts_services.Models.EF;
 
 public partial class BrettsAppContext : DbContext
 {
@@ -16,6 +14,9 @@ public partial class BrettsAppContext : DbContext
     {
         modelBuilder.Entity<Role>(e =>
         {
+            e.HasIndex(e => e.Name)
+                .IsUnique();
+
             e.Property(r => r.RoleGuid)
                 .HasDefaultValueSql("NEWID()");
 
@@ -28,6 +29,9 @@ public partial class BrettsAppContext : DbContext
 
         modelBuilder.Entity<User>(e =>
         {
+            e.HasIndex(u => u.Email)
+                .IsUnique();
+
             e.Property(u => u.UserGuid)
                 .HasDefaultValueSql("NEWID()");
 
@@ -70,13 +74,13 @@ public partial class BrettsAppContext : DbContext
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
+        ValidateChanges();
+
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override int SaveChanges()
     {
-        ValidateChanges();
-
         return SaveChanges(true);
     }
 }
