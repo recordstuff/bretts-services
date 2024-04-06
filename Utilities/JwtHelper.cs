@@ -1,15 +1,10 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-
-namespace bretts_services.Utilities;
+﻿namespace bretts_services.Utilities;
 
 public static class JwtHelper
 {
     // a document on JWT structure: https://datatracker.ietf.org/doc/html/rfc7519
 
-    public static string GetJwtToken(string email, string displayName, string signingKey, string issuer, string audience, List<string> roles)
+    public static string GetJwtToken(string email, string displayName, string signingKey, string issuer, string audience, List<Role> roles)
     {
         var claims = new List<Claim>
         {
@@ -20,7 +15,7 @@ public static class JwtHelper
 
         foreach (var role in roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim(ClaimTypes.Role, role.Name));
         }
 
         var key = new SymmetricSecurityKey(Convert.FromBase64String(signingKey));
@@ -31,5 +26,10 @@ public static class JwtHelper
         var token = new JwtSecurityToken(issuer, audience, claims, null, expires, creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public static string? RoleName(Roles role)
+    {
+        return Enum.GetName(typeof(Roles), role);
     }
 }

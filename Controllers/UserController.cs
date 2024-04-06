@@ -50,17 +50,17 @@ public class UserController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Add(UserCredentials? userCredentials)
+    public async Task<IActionResult> Add(NewUser? newUser)
     {
-        if (string.IsNullOrWhiteSpace(userCredentials?.Email)
-         || string.IsNullOrWhiteSpace(userCredentials.Password))
+        if (string.IsNullOrWhiteSpace(newUser?.Email)
+         || string.IsNullOrWhiteSpace(newUser.Password))
         {
             return BadRequest();
         }
 
-        if (await _userService.Add(userCredentials))
+        if (await _userService.Add(newUser))
         {
-            // TODO: return user
+            // TODO: return user?
             return Created(null as string, string.Empty);
         };
 

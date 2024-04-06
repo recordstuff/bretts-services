@@ -1,4 +1,6 @@
-﻿namespace bretts_services.Services;
+﻿using System.Linq;
+
+namespace bretts_services.Services;
 
 public class UserService : IUserService
 {
@@ -18,23 +20,24 @@ public class UserService : IUserService
         userCredintials.Email = userCredintials.Email.ToLower();
 
         var user = await _brettsAppContext.Users
-            .Include("Roles")
+            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
 
         if (user is null) return string.Empty;
 
         if (!Hashing.Verify(userCredintials.Password, user.Password, user.Salt)) return string.Empty;
 
-        var roles = user.Roles.Select(r => r.Name).ToList();
+        var roles = user.Roles.ToList();
 
         return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience, roles);
     }
 
-    public async Task<bool> Add(UserCredentials userCredintials)
+    public async Task<bool> Add(NewUser newUser)
     {
-        userCredintials.Email = userCredintials.Email.ToLower();
+        newUser.Email = newUser.Email.ToLower();
 
-        var user = await _brettsAppContext.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
+        var user = await _brettsAppContext.Users
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == newUser.Email);
         
         if (user is not null)
         {
@@ -43,13 +46,14 @@ public class UserService : IUserService
 
         user = new User();
 
-        user.Email = userCredintials.Email;
-
-        user.Password = Hashing.Hash(userCredintials.Password, out var salt);
+        user.Email = newUser.Email;
+        user.DisplayName = newUser.DisplayName;
+        user.Password = Hashing.Hash(newUser.Password, out var salt);
 
         user.Salt = salt;
 
-        var role = await _brettsAppContext.Roles.Where(r => r.Name == "User").FirstOrDefaultAsync();
+        var role = await _brettsAppContext.Roles
+            .FirstOrDefaultAsync(r => r.Name == JwtHelper.RoleName(Roles.User));
 
         if (role is null)
         {
@@ -59,6 +63,7 @@ public class UserService : IUserService
         user.Roles.Add(role);
 
         _brettsAppContext.Users.Add(user);
+
         var written = await _brettsAppContext.SaveChangesAsync();
 
         return written != 0;
@@ -78,9 +83,7 @@ public class UserService : IUserService
 
         if (roleFilter != Roles.Any)
         {
-            var roleText = Enum.GetName(typeof(Roles), roleFilter);
-
-            var role = _brettsAppContext.Roles.Where(r => r.Name == roleText).FirstOrDefault();
+            var role = await _brettsAppContext.Roles.FirstOrDefaultAsync(r => r.Name == JwtHelper.RoleName(roleFilter));
 
             if (role is null)
             {
@@ -100,7 +103,8 @@ public class UserService : IUserService
         {
             Page = page,
             PageCount = (int)Math.Ceiling((double)count / pageSize),
-            Items = _mapper.Map<List<DisplayedUser>>(items)
+            ItemCount = count,
+            Items = _mapper.Map<List<DisplayedUser>>(items),
         };
 
         return paginationResult;
