@@ -7,5 +7,7 @@ public interface IUserService
     Task<bool> Add(NewUser newUser);
 
     Task<PaginationResult<DisplayedUser>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter);
+
+    Task<DisplayedUser?> GetUser(Guid guid);
 }
     

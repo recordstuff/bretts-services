@@ -1,4 +1,6 @@
 
+using Azure;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // global exception handler
@@ -65,7 +67,12 @@ builder.Services.Configure<UserOptions>(
 
 builder.Services.AddScoped<IUserService, UserService>();
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions((configure) =>
+{
+    configure.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 
 // swagger
 

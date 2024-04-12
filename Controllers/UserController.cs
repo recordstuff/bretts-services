@@ -49,6 +49,19 @@ public class UserController : ControllerBase
         return Ok(paginationResult);
     }
 
+    [HttpGet("user/{guid}")]
+    public async Task<IActionResult> Users(Guid guid)
+    {
+        var user = await _userService.GetUser(guid);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(user);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Add(NewUser? newUser)
     {

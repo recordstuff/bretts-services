@@ -109,4 +109,11 @@ public class UserService : IUserService
 
         return paginationResult;
     }
+
+    public async Task<DisplayedUser?> GetUser(Guid guid)
+    {
+        var user = await _brettsAppContext.Users.FirstOrDefaultAsync(u => u.UserGuid == guid);
+
+        return _mapper.Map<DisplayedUser>(user);
+    }
 }
