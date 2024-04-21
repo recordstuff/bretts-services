@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using bretts_services.Models.EF;
+using bretts_services.Models.Entities;
 
 #nullable disable
 
@@ -40,7 +40,7 @@ namespace bretts_services.Migrations
                     b.ToTable("RoleUser");
                 });
 
-            modelBuilder.Entity("bretts_services.Models.EF.Role", b =>
+            modelBuilder.Entity("bretts_services.Models.Entities.Role", b =>
                 {
                     b.Property<long>("RoleID")
                         .ValueGeneratedOnAdd()
@@ -63,7 +63,7 @@ namespace bretts_services.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("bretts_services.Models.EF.User", b =>
+            modelBuilder.Entity("bretts_services.Models.Entities.User", b =>
                 {
                     b.Property<long>("UserID")
                         .ValueGeneratedOnAdd()
@@ -102,13 +102,13 @@ namespace bretts_services.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("bretts_services.Models.EF.Role", null)
+                    b.HasOne("bretts_services.Models.Entities.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesRoleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("bretts_services.Models.EF.User", null)
+                    b.HasOne("bretts_services.Models.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("RolesUserID")
                         .OnDelete(DeleteBehavior.Cascade)

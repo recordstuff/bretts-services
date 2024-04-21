@@ -12,15 +12,15 @@ using bretts_services.Models.Entities;
 namespace bretts_services.Migrations
 {
     [DbContext(typeof(BrettsAppContext))]
-    [Migration("20240216120827_AddRoles")]
-    partial class AddRoles
+    [Migration("20240412074831_UserPhone")]
+    partial class UserPhone
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.1")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -59,6 +59,9 @@ namespace bretts_services.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.HasKey("RoleID");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Roles");
 
@@ -104,6 +107,9 @@ namespace bretts_services.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("varbinary(64)");
 
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte[]>("Salt")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -115,6 +121,9 @@ namespace bretts_services.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.HasKey("UserID");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });

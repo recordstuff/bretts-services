@@ -1,8 +1,8 @@
-﻿namespace bretts_services.Models.User;
+﻿namespace bretts_services.Models.ViewModels;
 
-public record DisplayedUser
+public record UserSummary
 {
-    public Guid UserGuid { get; set; }
+    public Guid Guid { get; set; }
     public string Email { get; set; } = string.Empty;
     public string DisplayName { get; set; } = string.Empty;
 }

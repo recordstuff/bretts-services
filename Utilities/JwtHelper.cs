@@ -1,10 +1,13 @@
-﻿namespace bretts_services.Utilities;
+﻿using bretts_services.Models.Entities;
+using bretts_services.Models.ViewModels;
+
+namespace bretts_services.Utilities;
 
 public static class JwtHelper
 {
     // a document on JWT structure: https://datatracker.ietf.org/doc/html/rfc7519
 
-    public static string GetJwtToken(string email, string displayName, string signingKey, string issuer, string audience, List<Role> roles)
+    public static string GetJwtToken(string email, string displayName, string signingKey, string issuer, string audience, List<Entities.Role> roles)
     {
         var claims = new List<Claim>
         {

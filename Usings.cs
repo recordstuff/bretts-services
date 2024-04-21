@@ -15,13 +15,12 @@ global using System.Text;
 
 // ours
 
+global using Entities = bretts_services.Models.Entities;
 global using bretts_services.Interfaces;
-global using bretts_services.Models;
-global using bretts_services.Models.EF;
-global using bretts_services.Models.User;
 global using bretts_services.Options;
 global using bretts_services.Services;
 global using bretts_services.Utilities;
+global using ViewModels = bretts_services.Models.ViewModels;
 
 // third party
 

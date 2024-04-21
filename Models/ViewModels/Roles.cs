@@ -1,4 +1,4 @@
-﻿namespace bretts_services.Models.User;
+﻿namespace bretts_services.Models.ViewModels;
 
 public enum Roles
 {

@@ -1,4 +1,4 @@
-﻿namespace bretts_services.Models.EF;
+﻿namespace bretts_services.Models.Entities;
 
 public partial class User
 {
@@ -17,6 +17,8 @@ public partial class User
 
     [StringLength(256)]
     public string? DisplayName { get; set; }
+
+    public string? Phone { get; set; }
 
     public DateTime CreatedAt { get; set; }
 

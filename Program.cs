@@ -1,6 +1,4 @@
 
-using Azure;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // global exception handler
@@ -53,7 +51,7 @@ builder.Services.AddAuthentication(auth =>
 
 // EF dbcontext
 
-builder.Services.AddDbContext<BrettsAppContext>(options =>
+builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BrettsDbConnection")));
 
 // automapper
@@ -100,5 +98,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+#if DEBUG
+
+var automapperConfig = app.Services.GetService<AutoMapper.IConfigurationProvider>();
+
+ArgumentNullException.ThrowIfNull(automapperConfig, nameof(AutoMapper.IConfigurationProvider));
+
+automapperConfig.AssertConfigurationIsValid();
+
+#endif
 
 app.Run();

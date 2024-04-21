@@ -1,4 +1,4 @@
-﻿namespace bretts_services.Models.EF;
+﻿namespace bretts_services.Models.Entities;
 
 public partial class Role
 {
@@ -9,5 +9,5 @@ public partial class Role
     [StringLength(64)]
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<User> Roles { get; set; } = new List<User>();
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

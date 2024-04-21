@@ -1,4 +1,6 @@
-﻿namespace bretts_services.Interfaces;
+﻿using bretts_services.Models.ViewModels;
+
+namespace bretts_services.Interfaces;
 
 public interface IUserService
 {
@@ -6,8 +8,12 @@ public interface IUserService
 
     Task<bool> Add(NewUser newUser);
 
-    Task<PaginationResult<DisplayedUser>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter);
+    Task<PaginationResult<UserSummary>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter);
 
-    Task<DisplayedUser?> GetUser(Guid guid);
+    Task<UserDetail?> GetUser(Guid guid);
+
+    Task<UserDetail?> InsertUser(UserDetail user);
+    
+    Task<UserDetail?> UpdateUser(UserDetail user);
 }
     

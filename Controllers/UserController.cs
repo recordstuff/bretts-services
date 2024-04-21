@@ -1,4 +1,5 @@
 using bretts_services.Models;
+using bretts_services.Models.ViewModels;
 
 namespace bretts_services.Controllers;
 
@@ -62,7 +63,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPost]
+    [HttpPost("add")]
     public async Task<IActionResult> Add(NewUser? newUser)
     {
         if (string.IsNullOrWhiteSpace(newUser?.Email)
@@ -78,5 +79,24 @@ public class UserController : ControllerBase
         };
 
         return Conflict();
+    }
+
+    [HttpPost("update")]
+    public async Task<IActionResult> Update(UserDetail? userDetail)
+    {
+        if (string.IsNullOrWhiteSpace(userDetail?.Email)
+         || userDetail.Guid == Guid.Empty)
+        {
+            return BadRequest();
+        }
+
+        var updatedUser = await _userService.UpdateUser(userDetail);
+
+        if (updatedUser == null)
+        {
+            return BadRequest();
+        };
+
+        return Ok(updatedUser);
     }
 }

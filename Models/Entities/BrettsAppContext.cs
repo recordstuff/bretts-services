@@ -1,4 +1,4 @@
-﻿namespace bretts_services.Models.EF;
+﻿namespace bretts_services.Models.Entities;
 
 public partial class BrettsAppContext : DbContext
 {

@@ -1,4 +1,4 @@
-﻿namespace bretts_services.Models;
+﻿namespace bretts_services.Models.ViewModels;
 
 public record PaginationResult<T>
 {
