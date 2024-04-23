@@ -16,7 +16,11 @@ public class RoleService : IRoleService
 
     async Task<List<NameGuidPair>> IRoleService.GetRoles()
     {
-        var roles = await _brettsAppContext.Roles.OrderBy(r => r.Name).ToListAsync();
+        var roles = await _brettsAppContext.Roles
+            .AsNoTracking()
+            .OrderBy(r => r.Name)
+            .ToListAsync();
+
         var pairs = _mapper.Map<List<NameGuidPair>>(roles);
 
         return pairs;

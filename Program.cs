@@ -52,7 +52,14 @@ builder.Services.AddAuthentication(auth =>
 // EF dbcontext
 
 builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BrettsDbConnection")));
+{
+#if DEBUG
+    options.EnableSensitiveDataLogging();
+#endif
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BrettsDbConnection"));
+    // leave this on for now: options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); 
+    // could default to QueryTrackingBehavior.NoTrackingWithIdentityResolution
+});
 
 // automapper
 
@@ -63,6 +70,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.Configure<UserOptions>(
     builder.Configuration.GetSection(nameof(UserOptions)));
 
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services
