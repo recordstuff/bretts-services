@@ -2,7 +2,7 @@
 
 public record UserDetail : UserSummary
 {
-    public string Phone { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public List<NameGuidPair> Roles { get; set; } = new();
 
 }

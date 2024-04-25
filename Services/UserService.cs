@@ -34,7 +34,7 @@ public class UserService : IUserService
         return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience, roles);
     }
 
-    public async Task<bool> Add(NewUser newUser)
+    public async Task<bool> Add(UserNew newUser)
     {
         newUser.Email = newUser.Email.ToLower();
 
@@ -56,7 +56,6 @@ public class UserService : IUserService
         user.Salt = salt;
 
         var role = await _brettsAppContext.Roles
-            .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Name == JwtHelper.RoleName(Roles.User));
 
         if (role is null)
@@ -127,19 +126,29 @@ public class UserService : IUserService
         return _mapper.Map<UserDetail>(user);
     }
 
-    public async Task<UserDetail?> InsertUser(UserDetail user)
+    public async Task<UserDetail?> InsertUser(UserNew user)
     {
-        if (user.Guid != Guid.Empty)
-        {
-            var existingUser = await GetUser(user.Guid);
+        user.Email = user.Email.ToLower();
 
-            if (existingUser != null)
-            {
-                return null;
-            }
-        }
+        var existingUser = await _brettsAppContext.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email 
+                                   || u.UserGuid == user.Guid);
+
+        if (existingUser != null) return null;
 
         var newUser = _mapper.Map<User>(user);
+
+        newUser.Password = Hashing.Hash(user.Password, out var salt);
+        newUser.Salt = salt;
+
+        var roleGuids = newUser.Roles.Select(r => r.RoleGuid).ToList();
+
+        var roles = await _brettsAppContext.Roles
+            .Where(r => roleGuids.Contains(r.RoleGuid))
+            .ToListAsync();
+
+        newUser.Roles = roles;
 
         await _brettsAppContext.Users.AddAsync(newUser);
 
@@ -155,7 +164,7 @@ public class UserService : IUserService
         if (user.Guid == Guid.Empty) return null;
 
         var dbUser = await _brettsAppContext.Users
-            .AsNoTracking()
+            .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.UserGuid == user.Guid);
 
         if (dbUser == null)
@@ -165,22 +174,16 @@ public class UserService : IUserService
 
         _mapper.Map(user, dbUser);
 
+        var roleGuids = dbUser.Roles.Select(r => r.RoleGuid).ToList();
+
         var roles = await _brettsAppContext.Roles
-            .AsNoTracking()
+            .Where(r => roleGuids.Contains(r.RoleGuid))
             .ToListAsync();
 
-        foreach (var dbUserRole in dbUser.Roles) 
-        {
-            var role = roles.FirstOrDefault(r => r.RoleGuid == dbUserRole.RoleGuid);
-
-            ArgumentNullException.ThrowIfNull(role, nameof(role));
-
-            dbUserRole.RoleID = role.RoleID;
-        }
-
-        _brettsAppContext.Entry(dbUser).State = EntityState.Modified;
+        dbUser.Roles = roles;
+          
         _brettsAppContext.Users.Update(dbUser);
-        
+
         await _brettsAppContext.SaveChangesAsync();
 
         var updatedUser = _mapper.Map<UserDetail>(dbUser);

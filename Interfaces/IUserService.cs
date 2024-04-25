@@ -6,13 +6,13 @@ public interface IUserService
 {
     Task<string> Login(UserCredentials userCredintials);
 
-    Task<bool> Add(NewUser newUser);
+    Task<bool> Add(UserNew newUser);
 
     Task<PaginationResult<UserSummary>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter);
 
     Task<UserDetail?> GetUser(Guid guid);
 
-    Task<UserDetail?> InsertUser(UserDetail user);
+    Task<UserDetail?> InsertUser(UserNew user);
     
     Task<UserDetail?> UpdateUser(UserDetail user);
 }

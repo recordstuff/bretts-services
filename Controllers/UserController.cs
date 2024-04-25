@@ -63,18 +63,38 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpPost("add")]
-    public async Task<IActionResult> Add(NewUser? newUser)
+    [HttpPost("insert")]
+    public async Task<IActionResult> Insert(UserNew newUser)
     {
-        if (string.IsNullOrWhiteSpace(newUser?.Email)
-         || string.IsNullOrWhiteSpace(newUser.Password))
+        if (string.IsNullOrWhiteSpace(newUser.Email)
+         || string.IsNullOrWhiteSpace(newUser.Password)
+         || string.IsNullOrWhiteSpace(newUser.DisplayName))
+        {
+            return BadRequest();
+        }
+
+        var addedUser = await _userService.InsertUser(newUser);
+        
+        if (addedUser is not null)
+        {
+            return Created(null as string, addedUser);
+        };
+
+        return Conflict();
+    }
+
+    [HttpPost("add")]
+    public async Task<IActionResult> Add(UserNew newUser)
+    {
+        if (string.IsNullOrWhiteSpace(newUser.Email)
+         || string.IsNullOrWhiteSpace(newUser.Password)
+         || string.IsNullOrWhiteSpace(newUser.DisplayName))
         {
             return BadRequest();
         }
 
         if (await _userService.Add(newUser))
         {
-            // TODO: return user?
             return Created(null as string, string.Empty);
         };
 
@@ -82,9 +102,10 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("update")]
-    public async Task<IActionResult> Update(UserDetail? userDetail)
+    public async Task<IActionResult> Update(UserDetail userDetail)
     {
-        if (string.IsNullOrWhiteSpace(userDetail?.Email)
+        if (string.IsNullOrWhiteSpace(userDetail.Email)
+         || string.IsNullOrWhiteSpace(userDetail.DisplayName)
          || userDetail.Guid == Guid.Empty)
         {
             return BadRequest();
