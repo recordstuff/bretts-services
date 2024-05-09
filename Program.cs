@@ -126,6 +126,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.Configure<UserOptions>(
     builder.Configuration.GetSection(nameof(UserOptions)));
 
+builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
