@@ -1,9 +1,65 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
+const string sourceContext = "SourceContext";
+const string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}";
+
+#if DEBUG
+
+Serilog.Debugging.SelfLog.Enable(message => 
+{
+    Debug.WriteLine(message);
+    Debugger.Break();
+});
+
+#endif
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(outputTemplate: outputTemplate)
+    .CreateBootstrapLogger();
+
+Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Creating Builder.");
 
 var builder = WebApplication.CreateBuilder(args);
 
 // global exception handler
 
 builder.Services.AddExceptionHandler<ExceptionHandler>();
+
+Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Replacing Bootstrap Logger.");
+
+var connectionString = builder.Configuration.GetConnectionString("BrettsDbConnection");
+
+// Serilog
+
+var sinkOptions = new MSSqlServerSinkOptions 
+{
+    AutoCreateSqlTable = true,
+    TableName = "Logs", 
+};
+
+var columnOptions = new ColumnOptions();
+
+columnOptions.Store.Remove(StandardColumn.Properties);
+columnOptions.Store.Add(StandardColumn.LogEvent);
+columnOptions.PrimaryKey = columnOptions.Id;
+columnOptions.PrimaryKey.NonClusteredIndex = true;
+columnOptions.TimeStamp.NonClusteredIndex = true;
+
+columnOptions.AdditionalColumns = new List<SqlColumn>
+{
+    new SqlColumn { DataType = SqlDbType.VarChar, ColumnName = "SourceContext" },
+    new SqlColumn { DataType = SqlDbType.VarChar, ColumnName = "ServerName" },
+    new SqlColumn { DataType = SqlDbType.VarChar, ColumnName = "Environment" },
+};
+
+builder.Services.AddSerilog((services, lc) => lc
+    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.WithProperty("ServerName", Environment.MachineName)
+    .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production")
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate: outputTemplate)
+    .WriteTo.MSSqlServer(connectionString: connectionString, sinkOptions, columnOptions: columnOptions));
 
 // CORS
 
@@ -56,9 +112,9 @@ builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
 #if DEBUG
     options.EnableSensitiveDataLogging();
 #endif
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BrettsDbConnection"));
-    // leave this on for now: options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); 
-    // could default to QueryTrackingBehavior.NoTrackingWithIdentityResolution
+    options.UseSqlServer(connectionString);
+    // default this to on but could start with: options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); 
+    // or could default to QueryTrackingBehavior.NoTrackingWithIdentityResolution
 });
 
 // automapper
@@ -85,9 +141,26 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen();
 
+// health checks
+
+builder.Services.AddHealthChecks()
+    .AddCheck("liveness", () => HealthCheckResult.Healthy(), ["live"])
+    .AddCheck<DeepHealthCheck>("deep", tags: ["deep"]);
+
 // configure the request pipeline using the features that were added above
 
 var app = builder.Build();
+
+/*
+app.Lifetime.ApplicationStopped.Register(async () =>
+{
+    Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Calling CloseAndFlushAsync()");
+
+    await Log.CloseAndFlushAsync();
+}); */
+
+
+app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler("/Error");
 
@@ -107,6 +180,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapHealthChecks("/liveness", new HealthCheckOptions
+{
+    Predicate = healthCheck => healthCheck.Tags.Contains("live")
+});
+
+app.MapHealthChecks("/deep", new HealthCheckOptions
+{
+    Predicate = healthCheck => healthCheck.Tags.Contains("deep")
+});
+
 #if DEBUG
 
 var automapperConfig = app.Services.GetService<AutoMapper.IConfigurationProvider>();
@@ -117,4 +200,22 @@ automapperConfig.AssertConfigurationIsValid();
 
 #endif
 
-app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Logger.ForContext(sourceContext, nameof(Program)).Fatal(ex, "Caught fatal exception.  Terminating.");
+}
+finally
+{
+    Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Calling CloseAndFlushAsync()");
+    await Log.CloseAndFlushAsync();
+}
+
+
+
+
+
+
