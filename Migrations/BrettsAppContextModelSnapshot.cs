@@ -34,7 +34,7 @@ namespace bretts_services.Migrations
 
                     b.HasIndex("UsersUserID");
 
-                    b.ToTable("RoleUser");
+                    b.ToTable("RoleUser", (string)null);
                 });
 
             modelBuilder.Entity("bretts_services.Models.Entities.Log", b =>
@@ -81,7 +81,7 @@ namespace bretts_services.Migrations
 
                     b.HasIndex(new[] { "TimeStamp" }, "IX1_Logs");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("bretts_services.Models.Entities.Role", b =>
@@ -107,7 +107,7 @@ namespace bretts_services.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
 
                     b.HasData(
                         new
@@ -169,7 +169,7 @@ namespace bretts_services.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("RoleUser", b =>
