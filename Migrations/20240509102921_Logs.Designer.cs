@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using bretts_services.Models.Entities;
 
@@ -11,9 +12,11 @@ using bretts_services.Models.Entities;
 namespace bretts_services.Migrations
 {
     [DbContext(typeof(BrettsAppContext))]
-    partial class BrettsAppContextModelSnapshot : ModelSnapshot
+    [Migration("20240509102921_Logs")]
+    partial class Logs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace bretts_services.Migrations
 
                     b.HasIndex("UsersUserID");
 
-                    b.ToTable("RoleUser", (string)null);
+                    b.ToTable("RoleUser");
                 });
 
             modelBuilder.Entity("bretts_services.Models.Entities.Log", b =>
@@ -81,7 +84,7 @@ namespace bretts_services.Migrations
 
                     b.HasIndex(new[] { "TimeStamp" }, "IX1_Logs");
 
-                    b.ToTable("Logs", (string)null);
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("bretts_services.Models.Entities.Role", b =>
@@ -107,7 +110,7 @@ namespace bretts_services.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
@@ -169,7 +172,7 @@ namespace bretts_services.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("RoleUser", b =>

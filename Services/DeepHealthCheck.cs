@@ -13,7 +13,7 @@ public class DeepHealthCheck : IHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var role = await _brettsAppContext.Roles.FirstOrDefaultAsync();
+        var role = await _brettsAppContext.Roles.AsNoTracking().FirstOrDefaultAsync();
 
         if (role is null)
         {

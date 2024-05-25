@@ -7,11 +7,25 @@ public partial class BrettsAppContext : DbContext
     {
     }
 
+    public virtual DbSet<Log> Logs { get; set; }
+
     public virtual DbSet<Role> Roles { get; set; }
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Log>(entity =>
+        {
+            entity.HasKey(e => e.Id).IsClustered(false);
+
+            entity.HasIndex(e => e.TimeStamp, "IX1_Logs");
+
+            entity.Property(e => e.Environment).IsUnicode(false);
+            entity.Property(e => e.ServerName).IsUnicode(false);
+            entity.Property(e => e.SourceContext).IsUnicode(false);
+            entity.Property(e => e.TimeStamp).HasColumnType("datetime");
+        });
+
         modelBuilder.Entity<Role>(e =>
         {
             e.HasIndex(e => e.Name)
