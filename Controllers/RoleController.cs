@@ -1,5 +1,3 @@
-using bretts_services.Models;
-
 namespace bretts_services.Controllers;
 
 [Authorize(Roles = "Admin")]
