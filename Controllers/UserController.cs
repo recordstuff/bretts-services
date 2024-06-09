@@ -27,11 +27,11 @@ public class UserController : ControllerBase
             return BadRequest();
         }
 
-        var token = await _userService.Login(userCredentials);
+        var login = await _userService.Login(userCredentials);
 
-        if (!string.IsNullOrWhiteSpace(token))
+        if (!string.IsNullOrWhiteSpace(login.Token))
         {
-            return Ok(token);
+            return Ok(login);
         }
 
         return Unauthorized();
