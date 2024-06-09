@@ -4,7 +4,7 @@ namespace bretts_services.Interfaces;
 
 public interface IUserService
 {
-    Task<Login> Login(UserCredentials userCredintials);
+    Task<LoginSession> Login(UserCredentials userCredintials);
 
     Task<bool> Add(UserNew newUser);
 

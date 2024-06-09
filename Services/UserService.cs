@@ -16,7 +16,7 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<Login> Login(UserCredentials userCredintials)
+    public async Task<LoginSession> Login(UserCredentials userCredintials)
     {
         userCredintials.Email = userCredintials.Email.ToLower();
 
@@ -25,9 +25,9 @@ public class UserService : IUserService
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
 
-        if (user is null) return new Login();
+        if (user is null) return new LoginSession();
 
-        if (!Hashing.Verify(userCredintials.Password, user.Password, user.Salt)) return new Login();
+        if (!Hashing.Verify(userCredintials.Password, user.Password, user.Salt)) return new LoginSession();
 
         var roles = user.Roles.ToList();
 

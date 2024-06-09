@@ -1,6 +1,6 @@
 ﻿namespace bretts_services.Models.ViewModels;
 
-public record Login
+public record LoginSession
 {
     public string DisplayName { get; set; } = string.Empty;
     public long ExpirationSeconds { get; set; }

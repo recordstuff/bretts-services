@@ -7,7 +7,7 @@ public static class JwtHelper
 {
     // a document on JWT structure: https://datatracker.ietf.org/doc/html/rfc7519
 
-    public static Login GetJwtToken(string email, string displayName, string signingKey, string issuer, string audience, List<Role> roles)
+    public static LoginSession GetJwtToken(string email, string displayName, string signingKey, string issuer, string audience, List<Role> roles)
     {
         var claims = new List<Claim>
         {
@@ -28,10 +28,10 @@ public static class JwtHelper
 
         var token = new JwtSecurityToken(issuer, audience, claims, null, expires, creds);
 
-        return new Login
+        return new LoginSession
         {
              DisplayName = displayName,
-             ExpirationSeconds = (long)(DateTime.UnixEpoch - expires).TotalSeconds,
+             ExpirationSeconds = (long)(expires - DateTime.UnixEpoch).TotalSeconds,
              Roles = roles.Select(r => r.Name).ToList(),
              Token = new JwtSecurityTokenHandler().WriteToken(token),
         };
