@@ -10,3 +10,11 @@ It runs in a docker container and hits a MS SQL database running in a different 
 - [Program.cs](https://github.com/recordstuff/bretts-services/blob/master/Program.cs) where CORS, Auth, Jwt generation, global exception handling, and db access are set up.
 - [JwtHelper.cs](https://github.com/recordstuff/bretts-services/blob/master/Utilities/JwtHelper.cs) for Jwt creation.
 - [Hashing.cs](https://github.com/recordstuff/bretts-services/blob/master/Utilities/Hashing.cs) for reading and writing passwords
+
+## Setting up a MS SQL Server docker image
+
+```
+docker pull mcr.microsoft.com/mssql/server
+
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=placeholder' -p 1433:1433 -d mcr.microsoft.com/mssql/server
+```
