@@ -34,44 +34,6 @@ public class UserService : IUserService
         return JwtHelper.GetJwtToken(user.Email, user.DisplayName ?? user.Email, _userOptions.SigningKey, _userOptions.Issuer, _userOptions.Audience, roles);
     }
 
-    public async Task<bool> Add(UserNew newUser)
-    {
-        newUser.Email = newUser.Email.ToLower();
-
-        var user = await _brettsAppContext.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == newUser.Email);
-        
-        if (user is not null)
-        {
-            return false;
-        }
-
-        user = new User();
-
-        user.Email = newUser.Email;
-        user.DisplayName = newUser.DisplayName;
-        user.Password = Hashing.Hash(newUser.Password, out var salt);
-
-        user.Salt = salt;
-
-        var role = await _brettsAppContext.Roles
-            .FirstOrDefaultAsync(r => r.Name == JwtHelper.RoleName(Roles.User));
-
-        if (role is null)
-        {
-            throw new KeyNotFoundException("The User Role is missing.");
-        }
-
-        user.Roles.Add(role);
-
-        _brettsAppContext.Users.Add(user);
-
-        var written = await _brettsAppContext.SaveChangesAsync();
-
-        return written != 0;
-    }
-
     public async Task<PaginationResult<UserSummary>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter)
     {
         IQueryable<User> query = _brettsAppContext.Users
@@ -189,5 +151,20 @@ public class UserService : IUserService
         var updatedUser = _mapper.Map<UserDetail>(dbUser);
 
         return updatedUser;
+    }
+
+    public async Task<bool> DeleteUser(Guid guid)
+    {
+        var user = await _brettsAppContext.Users
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(u => u.UserGuid == guid);
+
+        if (user is null) return false; 
+
+        _brettsAppContext.Users.Remove(user);
+
+        await _brettsAppContext.SaveChangesAsync();
+
+        return true;
     }
 }

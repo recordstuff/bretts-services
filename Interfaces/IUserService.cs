@@ -6,11 +6,11 @@ public interface IUserService
 {
     Task<LoginSession> Login(UserCredentials userCredintials);
 
-    Task<bool> Add(UserNew newUser);
-
-    Task<PaginationResult<UserSummary>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter);
+        Task<PaginationResult<UserSummary>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter);
 
     Task<UserDetail?> GetUser(Guid guid);
+
+    Task<bool> DeleteUser(Guid guid);
 
     Task<UserDetail?> InsertUser(UserNew user);
     

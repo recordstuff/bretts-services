@@ -83,22 +83,20 @@ public class UserController : ControllerBase
         return Conflict();
     }
 
-    [HttpPost("add")]
-    public async Task<IActionResult> Add(UserNew newUser)
+    [HttpDelete("delete/{guid}")]
+    public async Task<IActionResult> Delete(Guid guid)
     {
-        if (string.IsNullOrWhiteSpace(newUser.Email)
-         || string.IsNullOrWhiteSpace(newUser.Password)
-         || string.IsNullOrWhiteSpace(newUser.DisplayName))
+        if (guid == Guid.Empty)
         {
             return BadRequest();
         }
 
-        if (await _userService.Add(newUser))
+        if (await _userService.DeleteUser(guid))
         {
-            return Created(null as string, string.Empty);
+            return Ok(true);
         };
 
-        return Conflict();
+        return NotFound();
     }
 
     [HttpPost("update")]
