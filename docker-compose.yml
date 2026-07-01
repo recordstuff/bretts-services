@@ -1,12 +1,12 @@
 # docker-compose.yml
  
 # Reference compose file version 3
-version: “3”
+version: "3"
 services:
 # Service name is api-app
   api-app:
 # build from Dockerfile
     build: .
-# expose 8080 as hosting port & 8080 in container port
+# expose 3001 as hosting port & 3001 in container port.  Apache handles 8080 to 3001
     ports:
-    - 8080:8080
+    - 3001:3001
