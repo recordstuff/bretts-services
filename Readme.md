@@ -18,3 +18,12 @@ docker pull mcr.microsoft.com/mssql/server
 
 docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=placeholder' -p 1433:1433 -d mcr.microsoft.com/mssql/server
 ```
+
+## Building the DB for the first time
+
+First, create the db using Managment Studio.
+Then:
+
+```
+dotnet ef database update --context BrettsAppContext --startup-project .\bretts-services.csproj --project .\bretts-services.csproj --connection "DataSource=tcp:192.168.0.235,1433;Database=bretts-app;User ID=sa;Password=placeholder;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False" --verbose
+```
