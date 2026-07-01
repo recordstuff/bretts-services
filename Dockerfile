@@ -3,6 +3,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
+ENV ASPNETCORE_HTTP_PORTS=3001
 EXPOSE 3001
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
