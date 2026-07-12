@@ -165,13 +165,11 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler("/Error");
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Swagger is intentionally enabled in every environment, including production deploys.
+app.UseSwagger();
+app.UseSwaggerUI();
 
-// TODO: get a cert!
+// Serve HTTP here; Apache handles HTTPS termination in production.
 //app.UseHttpsRedirection();
 
 app.UseCors();
