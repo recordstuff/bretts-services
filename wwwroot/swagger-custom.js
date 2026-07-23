@@ -11,6 +11,9 @@
 
         const portrait = document.createElement("img");
         portrait.className = "brett-swagger-header__portrait";
+        portrait.addEventListener("error", () => {
+            portrait.src = "https://brettdrake.org/brett.jpg";
+        }, { once: true });
         portrait.src = "/brett.jpg";
         portrait.alt = "Brett Drake";
 

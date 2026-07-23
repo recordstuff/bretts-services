@@ -171,6 +171,7 @@ app.UseStaticFiles();
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
+    options.DefaultModelsExpandDepth(2);
     options.InjectStylesheet("/swagger-custom.css");
     options.InjectJavascript("/swagger-custom.js");
 });
