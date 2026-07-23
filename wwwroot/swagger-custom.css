@@ -152,6 +152,22 @@ body {
     color: #f4f6ff;
 }
 
+.swagger-ui .opblock .opblock-summary-path {
+    color: var(--brett-green-bright);
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(57, 255, 116, 0.32);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .swagger-ui .opblock .opblock-summary-path {
+        background: linear-gradient(90deg, var(--brett-green-bright), var(--brett-green), #9dffb4);
+        background-clip: text;
+        color: transparent;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+}
+
 .swagger-ui .opblock-tag small,
 .swagger-ui .model-title,
 .swagger-ui section.models h4 {
