@@ -165,9 +165,15 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler("/Error");
 
+app.UseStaticFiles();
+
 // Swagger is intentionally enabled in every environment, including production deploys.
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options =>
+{
+    options.InjectStylesheet("/swagger-custom.css");
+    options.InjectJavascript("/swagger-custom.js");
+});
 
 // Serve HTTP here; Apache handles HTTPS termination in production.
 //app.UseHttpsRedirection();
