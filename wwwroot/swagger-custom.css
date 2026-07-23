@@ -175,16 +175,84 @@ body {
 }
 
 .swagger-ui section.models {
-    border-color: var(--brett-line);
-    background: rgba(7, 17, 11, 0.84);
+    border: 2px solid transparent;
+    background:
+        linear-gradient(145deg, rgba(10, 31, 16, 0.98), rgba(5, 17, 9, 0.98)) padding-box,
+        linear-gradient(135deg, var(--brett-green-bright), var(--brett-gold), #0a5e24) border-box;
+    box-shadow:
+        0 18px 44px rgba(0, 0, 0, 0.38),
+        0 0 26px rgba(57, 255, 116, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .swagger-ui section.models.is-open h4 {
     border-bottom-color: var(--brett-line);
 }
 
+.swagger-ui section.models h4,
+.swagger-ui section.models h4 span {
+    color: #f4f6ff;
+    text-shadow: 0 0 14px rgba(57, 255, 116, 0.34);
+}
+
+.swagger-ui section.models .models-control:focus-visible {
+    outline: 2px solid var(--brett-green-bright);
+    outline-offset: 4px;
+}
+
+.swagger-ui section.models .model-container {
+    border: 1px solid rgba(57, 255, 116, 0.58);
+    border-left: 4px solid var(--brett-gold);
+    border-radius: 6px;
+    background:
+        linear-gradient(135deg, rgba(15, 48, 24, 0.96), rgba(7, 25, 13, 0.98));
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.32),
+        0 0 18px rgba(57, 255, 116, 0.1),
+        inset 0 1px 0 rgba(157, 255, 180, 0.1);
+}
+
+.swagger-ui section.models .model-container:hover {
+    border-color: var(--brett-green-bright);
+    border-left-color: var(--brett-gold);
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.36),
+        0 0 24px rgba(57, 255, 116, 0.2),
+        inset 0 1px 0 rgba(157, 255, 180, 0.16);
+}
+
+.swagger-ui section.models .model-title {
+    color: #9dffb4;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(57, 255, 116, 0.28);
+}
+
 .swagger-ui .model {
     color: #dfffe6;
+}
+
+.swagger-ui section.models .model-box,
+.swagger-ui section.models .model-box-control,
+.swagger-ui section.models .property-row,
+.swagger-ui section.models .property {
+    color: #eaffee;
+}
+
+.swagger-ui section.models .prop-name {
+    color: #f4f6ff;
+}
+
+.swagger-ui section.models .prop-type {
+    color: var(--brett-green-bright);
+    font-weight: 700;
+}
+
+.swagger-ui section.models .prop-format {
+    color: #ffe28b;
+}
+
+.swagger-ui section.models svg {
+    fill: var(--brett-green-bright);
 }
 
 @media (max-width: 680px) {
