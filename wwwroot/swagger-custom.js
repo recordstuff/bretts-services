@@ -25,8 +25,15 @@
         description.className = "brett-swagger-header__description";
         description.textContent = "This is Brett Drake's working backend sample with real data.  The API hits a SQL Server instance running in a Docker Container on the host.  Since this is a sample for show and the data doesn't really matter, this Swagger page is enabled for the production build.";
 
+        const siteLink = document.createElement("a");
+        siteLink.className = "brett-swagger-header__site-link";
+        siteLink.href = "https://brettdrake.org";
+        siteLink.target = "_blank";
+        siteLink.rel = "noopener noreferrer";
+        siteLink.textContent = "brettdrake.org";
+
         content.append(prompt, title, description);
-        header.append(portrait, content);
+        header.append(portrait, content, siteLink);
         return header;
     };
 

@@ -51,7 +51,7 @@ body {
     gap: 30px;
     width: min(1160px, calc(100% - 40px));
     margin: 34px auto 18px;
-    padding: 30px;
+    padding: 30px 30px 52px;
     overflow: hidden;
     border: 1px solid var(--brett-line);
     border-radius: 8px;
@@ -65,14 +65,30 @@ body {
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
-.brett-swagger-header::after {
+.brett-swagger-header__site-link {
     position: absolute;
     right: 18px;
     bottom: 12px;
-    color: rgba(57, 255, 116, 0.12);
-    content: "01000010 01000100";
-    font-size: 0.78rem;
-    pointer-events: none;
+    border-bottom: 1px solid rgba(57, 255, 116, 0.66);
+    color: #9dffb4;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-shadow: 0 0 10px rgba(57, 255, 116, 0.32);
+    transition: border-color 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.brett-swagger-header__site-link:hover {
+    border-color: var(--brett-green-bright);
+    color: var(--brett-green-bright);
+    text-shadow:
+        0 0 10px rgba(57, 255, 116, 0.62),
+        0 0 20px rgba(0, 255, 0, 0.28);
+}
+
+.brett-swagger-header__site-link:focus-visible {
+    outline: 2px solid var(--brett-gold);
+    outline-offset: 4px;
 }
 
 .brett-swagger-header__portrait {
@@ -270,6 +286,11 @@ body {
 
     .brett-swagger-header__description {
         font-size: 0.94rem;
+    }
+
+    .brett-swagger-header__site-link {
+        position: static;
+        justify-self: start;
     }
 }
 
