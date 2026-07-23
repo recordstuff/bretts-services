@@ -1,20 +1,13 @@
 (() => {
-    const addHeader = () => {
-        const swaggerContent = document.querySelector(".swagger-ui .information-container");
+    let observer;
 
-        if (!swaggerContent || document.querySelector(".brett-swagger-header")) {
-            return false;
-        }
-
+    const createHeader = () => {
         const header = document.createElement("header");
         header.className = "brett-swagger-header";
 
         const portrait = document.createElement("img");
         portrait.className = "brett-swagger-header__portrait";
-        portrait.addEventListener("error", () => {
-            portrait.src = "https://brettdrake.org/brett.jpg";
-        }, { once: true });
-        portrait.src = "/brett.jpg";
+        portrait.src = "https://brettdrake.org/brett.jpg";
         portrait.alt = "Brett Drake";
 
         const content = document.createElement("div");
@@ -34,19 +27,49 @@
 
         content.append(prompt, title, description);
         header.append(portrait, content);
-        swaggerContent.parentNode.insertBefore(header, swaggerContent);
+        return header;
+    };
+
+    const addHeader = () => {
+        if (document.querySelector(".brett-swagger-header")) {
+            return true;
+        }
+
+        const topbar = document.querySelector("#swagger-ui .topbar");
+
+        if (!topbar) {
+            return false;
+        }
+
+        topbar.insertAdjacentElement("afterend", createHeader());
         return true;
     };
 
-    if (addHeader()) {
-        return;
+    const start = () => {
+        if (addHeader()) {
+            return;
+        }
+
+        const swaggerRoot = document.getElementById("swagger-ui");
+
+        if (!swaggerRoot || observer) {
+            return;
+        }
+
+        observer = new MutationObserver(() => {
+            if (addHeader()) {
+                observer.disconnect();
+            }
+        });
+
+        observer.observe(swaggerRoot, { childList: true, subtree: true });
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", start, { once: true });
+    } else {
+        start();
     }
 
-    const observer = new MutationObserver(() => {
-        if (addHeader()) {
-            observer.disconnect();
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener("load", start, { once: true });
 })();
