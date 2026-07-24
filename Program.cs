@@ -172,8 +172,8 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.DefaultModelsExpandDepth(2);
-    options.InjectStylesheet("/swagger-custom.css");
-    options.InjectJavascript("/swagger-custom.js");
+    options.InjectStylesheet("/swagger-custom.css?v=portrait-frame");
+    options.InjectJavascript("/swagger-custom.js?v=portrait-frame");
 });
 
 // Serve HTTP here; Apache handles HTTPS termination in production.
