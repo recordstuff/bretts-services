@@ -19,7 +19,7 @@
 
         const description = document.createElement("p");
         description.className = "brett-swagger-header__description";
-        description.textContent = "This is Brett Drake's working backend sample with real data.  The API hits a SQL Server instance running in a Docker Container on the host.  Since this is a sample for show and the data doesn't really matter, this Swagger page is enabled for the production build.";
+        description.textContent = "This is Brett Drake's .NET API backend project using JWT Auth. The API hits a SQL Server instance running in another Docker Container running on LINUX's Docker Desktop. Although it would not ordinarily be enabled on a Production build, it is enabled here to demonstrate the C# sample.";
 
         const githubLink = document.createElement("a");
         githubLink.className = "brett-swagger-header__github-link";
