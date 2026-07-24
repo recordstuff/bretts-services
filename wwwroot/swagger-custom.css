@@ -44,7 +44,7 @@ body {
     background: #0a5e24;
 }
 
-.brett-swagger-header {
+.swagger-ui .brett-swagger-header {
     position: relative;
     display: grid;
     grid-template-columns: 150px minmax(0, 1fr);
@@ -112,7 +112,7 @@ body {
     min-width: 0;
 }
 
-.brett-swagger-header__title {
+.swagger-ui .brett-swagger-header__title {
     margin: 0;
     color: #f4f6ff;
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
@@ -130,7 +130,7 @@ body {
     line-height: 1.7;
 }
 
-.brett-swagger-header__github-link {
+.swagger-ui .brett-swagger-header__github-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -151,7 +151,7 @@ body {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.brett-swagger-header__github-link:hover {
+.swagger-ui .brett-swagger-header__github-link:hover {
     border-color: #8c959f;
     background: #fff;
     box-shadow:
@@ -161,7 +161,7 @@ body {
     transform: translateY(-1px);
 }
 
-.brett-swagger-header__github-link:focus-visible {
+.swagger-ui .brett-swagger-header__github-link:focus-visible {
     outline: 2px solid var(--brett-green-bright);
     outline-offset: 3px;
 }
@@ -517,7 +517,7 @@ body {
 }
 
 @media (max-width: 680px) {
-    .brett-swagger-header {
+    .swagger-ui .brett-swagger-header {
         grid-template-columns: 1fr;
         gap: 20px;
         width: min(100% - 24px, 1160px);
