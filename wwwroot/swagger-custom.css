@@ -51,7 +51,7 @@ body {
     gap: 30px;
     width: min(1160px, calc(100% - 40px));
     margin: 34px auto 18px;
-    padding: 30px 30px 52px;
+    padding: 30px;
     overflow: hidden;
     border: 1px solid var(--brett-line);
     border-radius: 8px;
@@ -66,9 +66,8 @@ body {
 }
 
 .brett-swagger-header__site-link {
-    position: absolute;
-    right: 18px;
-    bottom: 12px;
+    display: inline-block;
+    margin-left: 6px;
     border-bottom: 1px solid rgba(57, 255, 116, 0.66);
     color: #9dffb4;
     font-size: 0.82rem;
@@ -531,11 +530,6 @@ body {
 
     .brett-swagger-header__description {
         font-size: 0.94rem;
-    }
-
-    .brett-swagger-header__site-link {
-        position: static;
-        justify-self: start;
     }
 }
 

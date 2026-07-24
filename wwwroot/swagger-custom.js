@@ -46,8 +46,9 @@
         siteLink.rel = "noopener noreferrer";
         siteLink.textContent = "brettdrake.org";
 
+        description.append(document.createTextNode(" "), siteLink);
         content.append(title, description);
-        header.append(portrait, content, siteLink);
+        header.append(portrait, content);
         return header;
     };
 
