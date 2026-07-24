@@ -34,7 +34,7 @@
         githubIcon.setAttribute("aria-hidden", "true");
 
         const githubLabel = document.createElement("span");
-        githubLabel.textContent = "Here is the GitHub";
+        githubLabel.textContent = "See the GitHub Repo";
 
         githubLink.append(githubIcon, githubLabel);
         description.append(document.createTextNode(" "), githubLink);
