@@ -10,6 +10,10 @@
         portrait.src = "https://brettdrake.org/brett.jpg";
         portrait.alt = "Brett Drake";
 
+        const portraitFrame = document.createElement("div");
+        portraitFrame.className = "brett-swagger-header__portrait-frame";
+        portraitFrame.append(portrait);
+
         const content = document.createElement("div");
         content.className = "brett-swagger-header__content";
 
@@ -48,7 +52,7 @@
 
         description.append(document.createTextNode(" "), siteLink);
         content.append(title, description);
-        header.append(portrait, content);
+        header.append(portraitFrame, content);
         return header;
     };
 
