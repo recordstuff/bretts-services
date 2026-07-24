@@ -94,7 +94,7 @@ body {
 .brett-swagger-header__portrait {
     width: 150px;
     aspect-ratio: 1;
-    align-self: center;
+    align-self: start;
     border: 4px solid transparent;
     border-radius: 50%;
     background:
@@ -108,16 +108,8 @@ body {
 }
 
 .brett-swagger-header__content {
-    align-self: center;
+    align-self: start;
     min-width: 0;
-}
-
-.brett-swagger-header__prompt {
-    margin: 0 0 10px;
-    color: var(--brett-gold);
-    font-size: 0.84rem;
-    font-weight: 700;
-    overflow-wrap: anywhere;
 }
 
 .brett-swagger-header__title {
@@ -136,6 +128,48 @@ body {
     color: var(--brett-green-muted);
     font-size: 1rem;
     line-height: 1.7;
+}
+
+.brett-swagger-header__github-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 6px;
+    padding: 4px 8px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    background: #f6f8fa;
+    box-shadow: 0 6px 16px rgba(1, 4, 9, 0.24);
+    color: #24292f;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    text-shadow: none;
+    vertical-align: middle;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.brett-swagger-header__github-link:hover {
+    border-color: #8c959f;
+    background: #fff;
+    box-shadow:
+        0 8px 20px rgba(1, 4, 9, 0.3),
+        0 0 18px rgba(57, 255, 116, 0.18);
+    color: #24292f;
+    transform: translateY(-1px);
+}
+
+.brett-swagger-header__github-link:focus-visible {
+    outline: 2px solid var(--brett-green-bright);
+    outline-offset: 3px;
+}
+
+.brett-swagger-header__github-icon {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
 }
 
 .swagger-ui .information-container,
