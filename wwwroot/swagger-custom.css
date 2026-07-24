@@ -154,10 +154,20 @@ body {
     border-color: #8c959f;
     background: #fff;
     box-shadow:
-        0 8px 20px rgba(1, 4, 9, 0.3),
-        0 0 18px rgba(57, 255, 116, 0.18);
+        0 12px 28px rgba(1, 4, 9, 0.3),
+        0 0 20px rgba(57, 255, 116, 0.18);
     color: #24292f;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+}
+
+.swagger-ui .brett-swagger-header__github-link:active {
+    border-color: #8c959f;
+    background: #fff;
+    box-shadow:
+        0 12px 28px rgba(1, 4, 9, 0.3),
+        0 0 20px rgba(57, 255, 116, 0.18);
+    color: #24292f;
+    transform: translateY(0);
 }
 
 .swagger-ui .brett-swagger-header__github-link:focus-visible {
