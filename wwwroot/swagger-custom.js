@@ -13,17 +13,31 @@
         const content = document.createElement("div");
         content.className = "brett-swagger-header__content";
 
-        const prompt = document.createElement("p");
-        prompt.className = "brett-swagger-header__prompt";
-        prompt.textContent = "$ curl brettdrake.org:8080/swagger";
-
         const title = document.createElement("h1");
         title.className = "brett-swagger-header__title";
-        title.textContent = "Brett Drake's API";
+        title.textContent = "Brett Drake's .NET API";
 
         const description = document.createElement("p");
         description.className = "brett-swagger-header__description";
-        description.textContent = "This is Brett Drake's working backend sample with real data.  The API hits a SQL Server instance running in a Docker Container on the host.  Since this is a sample for show and the data doesn't really matter, this Swagger page is enabled for the production build.";
+        description.textContent = "This is Brett Drake's .NET API backend project using JWT Auth. The API hits a SQL Server instance running in another Docker container all running on LINUX's Docker Desktop. Although it would not ordinarily be enabled on a Production build, this Swagger page is enabled here to demonstrate the C# sample.";
+
+        const githubLink = document.createElement("a");
+        githubLink.className = "brett-swagger-header__github-link";
+        githubLink.href = "https://github.com/recordstuff/bretts-services";
+        githubLink.target = "_blank";
+        githubLink.rel = "noopener noreferrer";
+
+        const githubIcon = document.createElement("img");
+        githubIcon.className = "brett-swagger-header__github-icon";
+        githubIcon.src = "https://github.githubassets.com/favicons/favicon.svg";
+        githubIcon.alt = "";
+        githubIcon.setAttribute("aria-hidden", "true");
+
+        const githubLabel = document.createElement("span");
+        githubLabel.textContent = "See the GitHub Repo";
+
+        githubLink.append(githubIcon, githubLabel);
+        description.append(document.createTextNode(" "), githubLink);
 
         const siteLink = document.createElement("a");
         siteLink.className = "brett-swagger-header__site-link";
@@ -32,8 +46,9 @@
         siteLink.rel = "noopener noreferrer";
         siteLink.textContent = "brettdrake.org";
 
-        content.append(prompt, title, description);
-        header.append(portrait, content, siteLink);
+        description.append(document.createTextNode(" "), siteLink);
+        content.append(title, description);
+        header.append(portrait, content);
         return header;
     };
 
