@@ -15,7 +15,7 @@
 
         const title = document.createElement("h1");
         title.className = "brett-swagger-header__title";
-        title.textContent = "Brett Drake's API";
+        title.textContent = "Brett Drake's .NET API";
 
         const description = document.createElement("p");
         description.className = "brett-swagger-header__description";

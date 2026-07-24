@@ -115,7 +115,7 @@ body {
     margin: 0;
     color: #f4f6ff;
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
     line-height: 1.05;
     letter-spacing: 0;
     text-shadow: 0 0 24px rgba(57, 255, 116, 0.28);
