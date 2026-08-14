@@ -3,17 +3,16 @@ using bretts_services.Models.ViewModels;
 
 namespace bretts_services.Services;
 
-public class UserService : IUserService
+public class UserService : ServiceBase, IUserService
 {
     private const string UserEmailIndexName = "IX_Users_Email";
 
-    private readonly BrettsAppContext _brettsAppContext;
     private readonly UserOptions _userOptions;
     private readonly IMapper _mapper;
 
     public UserService(BrettsAppContext brettsAppContext, IOptions<UserOptions> options, IMapper mapper)
+        : base(brettsAppContext)
     {
-        _brettsAppContext = brettsAppContext;
         _userOptions = options.Value;
         _mapper = mapper;
     }
@@ -141,7 +140,7 @@ public class UserService : IUserService
 
         await _brettsAppContext.Users.AddAsync(newUser);
 
-        if (!await TrySaveUserChanges())
+        if (!await TrySaveChanges(UserEmailIndexName))
         {
             return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
         }
@@ -195,7 +194,7 @@ public class UserService : IUserService
           
         _brettsAppContext.Users.Update(dbUser);
 
-        if (!await TrySaveUserChanges())
+        if (!await TrySaveChanges(UserEmailIndexName))
         {
             return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
         }
@@ -222,19 +221,5 @@ public class UserService : IUserService
         await _brettsAppContext.SaveChangesAsync();
 
         return true;
-    }
-
-    private async Task<bool> TrySaveUserChanges()
-    {
-        try
-        {
-            await _brettsAppContext.SaveChangesAsync();
-            return true;
-        }
-        catch (DbUpdateException ex)
-            when (SqlExceptionHelper.IsDuplicateKeyForIndex(ex, UserEmailIndexName))
-        {
-            return false;
-        }
     }
 }

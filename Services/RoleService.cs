@@ -3,16 +3,15 @@ using bretts_services.Models.ViewModels;
 
 namespace bretts_services.Services;
 
-public class RoleService : IRoleService
+public class RoleService : ServiceBase, IRoleService
 {
     private const string RoleNameIndexName = "IX_Roles_Name";
 
-    private readonly BrettsAppContext _brettsAppContext;
     private readonly IMapper _mapper;
 
     public RoleService(BrettsAppContext brettsAppContext, IMapper mapper)
+        : base(brettsAppContext)
     {
-        _brettsAppContext = brettsAppContext;
         _mapper = mapper;
     }
 
@@ -99,7 +98,7 @@ public class RoleService : IRoleService
 
         await _brettsAppContext.Roles.AddAsync(newRole);
 
-        if (!await TrySaveRoleChanges())
+        if (!await TrySaveChanges(RoleNameIndexName))
         {
             return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
@@ -140,7 +139,7 @@ public class RoleService : IRoleService
 
         _mapper.Map(role, dbRole);
 
-        if (!await TrySaveRoleChanges())
+        if (!await TrySaveChanges(RoleNameIndexName))
         {
             return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
@@ -176,19 +175,5 @@ public class RoleService : IRoleService
         await transaction.CommitAsync();
 
         return new RoleSaveResult { Status = RoleSaveStatus.Success };
-    }
-
-    private async Task<bool> TrySaveRoleChanges()
-    {
-        try
-        {
-            await _brettsAppContext.SaveChangesAsync();
-            return true;
-        }
-        catch (DbUpdateException ex)
-            when (SqlExceptionHelper.IsDuplicateKeyForIndex(ex, RoleNameIndexName))
-        {
-            return false;
-        }
     }
 }
