@@ -1,13 +1,10 @@
 ﻿using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
-using Microsoft.Data.SqlClient;
 
 namespace bretts_services.Services;
 
 public class UserService : IUserService
 {
-    private const int CannotInsertDuplicateKey = 2601;
-    private const int CannotInsertDuplicateKeyInUniqueIndex = 2627;
     private const string UserEmailIndexName = "IX_Users_Email";
 
     private readonly BrettsAppContext _brettsAppContext;
@@ -234,27 +231,10 @@ public class UserService : IUserService
             await _brettsAppContext.SaveChangesAsync();
             return true;
         }
-        catch (DbUpdateException ex) when (IsDuplicateEmailException(ex))
+        catch (DbUpdateException ex)
+            when (SqlExceptionHelper.IsDuplicateKeyForIndex(ex, UserEmailIndexName))
         {
             return false;
         }
-    }
-
-    private static bool IsDuplicateEmailException(DbUpdateException exception)
-    {
-        if (exception.InnerException is not SqlException sqlException)
-        {
-            return false;
-        }
-
-        var isDuplicateKey = sqlException.Number == CannotInsertDuplicateKey
-                          || sqlException.Number == CannotInsertDuplicateKeyInUniqueIndex;
-
-        if (!isDuplicateKey)
-        {
-            return false;
-        }
-
-        return sqlException.Message.Contains(UserEmailIndexName, StringComparison.OrdinalIgnoreCase);
     }
 }
