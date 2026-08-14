@@ -1,10 +1,15 @@
 ﻿using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
+using Microsoft.Data.SqlClient;
 
 namespace bretts_services.Services;
 
 public class UserService : IUserService
 {
+    private const int CannotInsertDuplicateKey = 2601;
+    private const int CannotInsertDuplicateKeyInUniqueIndex = 2627;
+    private const string UserEmailIndexName = "IX_Users_Email";
+
     private readonly BrettsAppContext _brettsAppContext;
     private readonly UserOptions _userOptions;
     private readonly IMapper _mapper;
@@ -110,16 +115,19 @@ public class UserService : IUserService
         return _mapper.Map<UserDetail>(user);
     }
 
-    public async Task<UserDetail?> InsertUser(UserNew user)
+    public async Task<UserSaveResult> InsertUser(UserNew user)
     {
-        user.Email = user.Email.ToLower();
+        user.Email = user.Email.Trim().ToLower();
 
         var existingUser = await _brettsAppContext.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email 
                                    || u.UserGuid == user.Guid);
 
-        if (existingUser != null) return null;
+        if (existingUser != null)
+        {
+            return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
+        }
 
         var newUser = _mapper.Map<User>(user);
 
@@ -136,16 +144,38 @@ public class UserService : IUserService
 
         await _brettsAppContext.Users.AddAsync(newUser);
 
-        await _brettsAppContext.SaveChangesAsync();
+        if (!await TrySaveUserChanges())
+        {
+            return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
+        }
 
         var addedUser = _mapper.Map<UserDetail>(newUser);
 
-        return addedUser;
+        return new UserSaveResult
+        {
+            Status = UserSaveStatus.Success,
+            User = addedUser,
+        };
     }
 
-    public async Task<UserDetail?> UpdateUser(UserDetail user)
+    public async Task<UserSaveResult> UpdateUser(UserDetail user)
     {
-        if (user.Guid == Guid.Empty) return null;
+        if (user.Guid == Guid.Empty)
+        {
+            return new UserSaveResult { Status = UserSaveStatus.UserNotFound };
+        }
+
+        user.Email = user.Email.Trim().ToLower();
+
+        var emailIsInUse = await _brettsAppContext.Users
+            .AsNoTracking()
+            .AnyAsync(existingUser => existingUser.UserGuid != user.Guid
+                                   && existingUser.Email.ToLower() == user.Email);
+
+        if (emailIsInUse)
+        {
+            return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
+        }
 
         var dbUser = await _brettsAppContext.Users
             .Include(u => u.Roles)
@@ -153,7 +183,7 @@ public class UserService : IUserService
 
         if (dbUser == null)
         {
-            return null;
+            return new UserSaveResult { Status = UserSaveStatus.UserNotFound };
         }
 
         _mapper.Map(user, dbUser);
@@ -168,11 +198,18 @@ public class UserService : IUserService
           
         _brettsAppContext.Users.Update(dbUser);
 
-        await _brettsAppContext.SaveChangesAsync();
+        if (!await TrySaveUserChanges())
+        {
+            return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
+        }
 
         var updatedUser = _mapper.Map<UserDetail>(dbUser);
 
-        return updatedUser;
+        return new UserSaveResult
+        {
+            Status = UserSaveStatus.Success,
+            User = updatedUser,
+        };
     }
 
     public async Task<bool> DeleteUser(Guid guid)
@@ -188,5 +225,36 @@ public class UserService : IUserService
         await _brettsAppContext.SaveChangesAsync();
 
         return true;
+    }
+
+    private async Task<bool> TrySaveUserChanges()
+    {
+        try
+        {
+            await _brettsAppContext.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException ex) when (IsDuplicateEmailException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool IsDuplicateEmailException(DbUpdateException exception)
+    {
+        if (exception.InnerException is not SqlException sqlException)
+        {
+            return false;
+        }
+
+        var isDuplicateKey = sqlException.Number == CannotInsertDuplicateKey
+                          || sqlException.Number == CannotInsertDuplicateKeyInUniqueIndex;
+
+        if (!isDuplicateKey)
+        {
+            return false;
+        }
+
+        return sqlException.Message.Contains(UserEmailIndexName, StringComparison.OrdinalIgnoreCase);
     }
 }
