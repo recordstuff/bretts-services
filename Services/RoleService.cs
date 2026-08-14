@@ -1,10 +1,15 @@
 ﻿using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
+using Microsoft.Data.SqlClient;
 
 namespace bretts_services.Services;
 
 public class RoleService : IRoleService
 {
+    private const int CannotInsertDuplicateKey = 2601;
+    private const int CannotInsertDuplicateKeyInUniqueIndex = 2627;
+    private const string RoleNameIndexName = "IX_Roles_Name";
+
     private readonly BrettsAppContext _brettsAppContext;
     private readonly IMapper _mapper;
 
@@ -14,15 +19,149 @@ public class RoleService : IRoleService
         _mapper = mapper;
     }
 
-    async Task<List<NameGuidPair>> IRoleService.GetRoles()
+    public async Task<List<NameGuidPair>> GetRoles()
     {
         var roles = await _brettsAppContext.Roles
             .AsNoTracking()
             .OrderBy(r => r.Name)
             .ToListAsync();
 
-        var pairs = _mapper.Map<List<NameGuidPair>>(roles);
+        return _mapper.Map<List<NameGuidPair>>(roles);
+    }
 
-        return pairs;
+    public async Task<NameGuidPair?> GetRole(Guid guid)
+    {
+        var role = await _brettsAppContext.Roles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.RoleGuid == guid);
+
+        return _mapper.Map<NameGuidPair>(role);
+    }
+
+    public async Task<RoleChangeResult> InsertRole(RoleNew role)
+    {
+        role.Name = role.Name.Trim();
+
+        var duplicateNameExists = await _brettsAppContext.Roles
+            .AsNoTracking()
+            .AnyAsync(existingRole => existingRole.Name.ToLower() == role.Name.ToLower());
+
+        if (duplicateNameExists)
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+        }
+
+        var newRole = _mapper.Map<Role>(role);
+
+        await _brettsAppContext.Roles.AddAsync(newRole);
+
+        if (!await TrySaveRoleChanges())
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+        }
+
+        return new RoleChangeResult
+        {
+            Status = RoleChangeStatus.Success,
+            Role = _mapper.Map<NameGuidPair>(newRole),
+        };
+    }
+
+    public async Task<RoleChangeResult> UpdateRole(NameGuidPair role)
+    {
+        if (!Guid.TryParse(role.Guid, out var roleGuid))
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.RoleNotFound };
+        }
+
+        role.Name = role.Name.Trim();
+
+        var duplicateNameExists = await _brettsAppContext.Roles
+            .AsNoTracking()
+            .AnyAsync(existingRole => existingRole.RoleGuid != roleGuid
+                                   && existingRole.Name.ToLower() == role.Name.ToLower());
+
+        if (duplicateNameExists)
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+        }
+
+        var dbRole = await _brettsAppContext.Roles
+            .FirstOrDefaultAsync(existingRole => existingRole.RoleGuid == roleGuid);
+
+        if (dbRole == null)
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.RoleNotFound };
+        }
+
+        _mapper.Map(role, dbRole);
+
+        if (!await TrySaveRoleChanges())
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+        }
+
+        return new RoleChangeResult
+        {
+            Status = RoleChangeStatus.Success,
+            Role = _mapper.Map<NameGuidPair>(dbRole),
+        };
+    }
+
+    public async Task<RoleChangeResult> DeleteRole(Guid guid)
+    {
+        await using var transaction = await _brettsAppContext.Database
+            .BeginTransactionAsync(IsolationLevel.Serializable);
+
+        var role = await _brettsAppContext.Roles
+            .Include(existingRole => existingRole.Users)
+            .FirstOrDefaultAsync(existingRole => existingRole.RoleGuid == guid);
+
+        if (role == null)
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.RoleNotFound };
+        }
+
+        if (role.Users.Any())
+        {
+            return new RoleChangeResult { Status = RoleChangeStatus.RoleInUse };
+        }
+
+        _brettsAppContext.Roles.Remove(role);
+        await _brettsAppContext.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return new RoleChangeResult { Status = RoleChangeStatus.Success };
+    }
+
+    private async Task<bool> TrySaveRoleChanges()
+    {
+        try
+        {
+            await _brettsAppContext.SaveChangesAsync();
+            return true;
+        }
+        catch (DbUpdateException ex) when (IsDuplicateRoleNameException(ex))
+        {
+            return false;
+        }
+    }
+
+    private static bool IsDuplicateRoleNameException(DbUpdateException exception)
+    {
+        if (exception.InnerException is not SqlException sqlException)
+        {
+            return false;
+        }
+
+        var isDuplicateKey = sqlException.Number == CannotInsertDuplicateKey
+                          || sqlException.Number == CannotInsertDuplicateKeyInUniqueIndex;
+
+        if (!isDuplicateKey)
+        {
+            return false;
+        }
+
+        return sqlException.Message.Contains(RoleNameIndexName, StringComparison.OrdinalIgnoreCase);
     }
 }

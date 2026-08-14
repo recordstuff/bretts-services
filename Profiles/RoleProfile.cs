@@ -14,5 +14,10 @@ public class RoleProfile : Profile
             .ForMember(r => r.RoleGuid, o => o.MapFrom(ngp => ngp.Guid))
             .ForMember(r => r.RoleID, o => o.Ignore())
             .ForMember(r => r.Users, o => o.Ignore());
+
+        CreateMap<RoleNew, Role>()
+            .ForMember(r => r.RoleGuid, o => o.Ignore())
+            .ForMember(r => r.RoleID, o => o.Ignore())
+            .ForMember(r => r.Users, o => o.Ignore());
     }
 }
