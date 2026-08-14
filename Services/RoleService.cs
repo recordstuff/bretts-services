@@ -82,7 +82,7 @@ public class RoleService : IRoleService
         return _mapper.Map<NameGuidPair>(role);
     }
 
-    public async Task<RoleChangeResult> InsertRole(RoleNew role)
+    public async Task<RoleSaveResult> InsertRole(RoleNew role)
     {
         role.Name = role.Name.Trim();
 
@@ -92,7 +92,7 @@ public class RoleService : IRoleService
 
         if (duplicateNameExists)
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+            return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
 
         var newRole = _mapper.Map<Role>(role);
@@ -101,21 +101,21 @@ public class RoleService : IRoleService
 
         if (!await TrySaveRoleChanges())
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+            return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
 
-        return new RoleChangeResult
+        return new RoleSaveResult
         {
-            Status = RoleChangeStatus.Success,
+            Status = RoleSaveStatus.Success,
             Role = _mapper.Map<NameGuidPair>(newRole),
         };
     }
 
-    public async Task<RoleChangeResult> UpdateRole(NameGuidPair role)
+    public async Task<RoleSaveResult> UpdateRole(NameGuidPair role)
     {
         if (!Guid.TryParse(role.Guid, out var roleGuid))
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.RoleNotFound };
+            return new RoleSaveResult { Status = RoleSaveStatus.RoleNotFound };
         }
 
         role.Name = role.Name.Trim();
@@ -127,7 +127,7 @@ public class RoleService : IRoleService
 
         if (duplicateNameExists)
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+            return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
 
         var dbRole = await _brettsAppContext.Roles
@@ -135,24 +135,24 @@ public class RoleService : IRoleService
 
         if (dbRole == null)
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.RoleNotFound };
+            return new RoleSaveResult { Status = RoleSaveStatus.RoleNotFound };
         }
 
         _mapper.Map(role, dbRole);
 
         if (!await TrySaveRoleChanges())
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.DuplicateName };
+            return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
 
-        return new RoleChangeResult
+        return new RoleSaveResult
         {
-            Status = RoleChangeStatus.Success,
+            Status = RoleSaveStatus.Success,
             Role = _mapper.Map<NameGuidPair>(dbRole),
         };
     }
 
-    public async Task<RoleChangeResult> DeleteRole(Guid guid)
+    public async Task<RoleSaveResult> DeleteRole(Guid guid)
     {
         await using var transaction = await _brettsAppContext.Database
             .BeginTransactionAsync(IsolationLevel.Serializable);
@@ -163,19 +163,19 @@ public class RoleService : IRoleService
 
         if (role == null)
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.RoleNotFound };
+            return new RoleSaveResult { Status = RoleSaveStatus.RoleNotFound };
         }
 
         if (role.Users.Any())
         {
-            return new RoleChangeResult { Status = RoleChangeStatus.RoleInUse };
+            return new RoleSaveResult { Status = RoleSaveStatus.RoleInUse };
         }
 
         _brettsAppContext.Roles.Remove(role);
         await _brettsAppContext.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        return new RoleChangeResult { Status = RoleChangeStatus.Success };
+        return new RoleSaveResult { Status = RoleSaveStatus.Success };
     }
 
     private async Task<bool> TrySaveRoleChanges()

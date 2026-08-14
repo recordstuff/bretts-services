@@ -1,8 +1,8 @@
 namespace bretts_services.Models.ViewModels;
 
-public class RoleChangeResult
+public class RoleSaveResult
 {
-    public RoleChangeStatus Status { get; init; }
+    public RoleSaveStatus Status { get; init; }
 
     public NameGuidPair? Role { get; init; }
 }

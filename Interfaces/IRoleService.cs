@@ -11,9 +11,9 @@ public interface IRoleService
 
     Task<NameGuidPair?> GetRole(Guid guid);
 
-    Task<RoleChangeResult> InsertRole(RoleNew role);
+    Task<RoleSaveResult> InsertRole(RoleNew role);
 
-    Task<RoleChangeResult> UpdateRole(NameGuidPair role);
+    Task<RoleSaveResult> UpdateRole(NameGuidPair role);
 
-    Task<RoleChangeResult> DeleteRole(Guid guid);
+    Task<RoleSaveResult> DeleteRole(Guid guid);
 }

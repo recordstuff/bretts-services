@@ -145,14 +145,14 @@ public class RoleController : ControllerBase
             return BadRequest();
         }
 
-        var changeResult = await _roleService.InsertRole(role);
+        var saveResult = await _roleService.InsertRole(role);
 
-        if (changeResult.Status == RoleChangeStatus.DuplicateName)
+        if (saveResult.Status == RoleSaveStatus.DuplicateName)
         {
             return Conflict();
         }
 
-        return Created(null as string, changeResult.Role);
+        return Created(null as string, saveResult.Role);
     }
 
     /// <summary>
@@ -180,19 +180,19 @@ public class RoleController : ControllerBase
             return BadRequest();
         }
 
-        var changeResult = await _roleService.UpdateRole(role);
+        var saveResult = await _roleService.UpdateRole(role);
 
-        if (changeResult.Status == RoleChangeStatus.DuplicateName)
+        if (saveResult.Status == RoleSaveStatus.DuplicateName)
         {
             return Conflict();
         }
 
-        if (changeResult.Status == RoleChangeStatus.RoleNotFound)
+        if (saveResult.Status == RoleSaveStatus.RoleNotFound)
         {
             return BadRequest();
         }
 
-        return Ok(changeResult.Role);
+        return Ok(saveResult.Role);
     }
 
     /// <summary>
@@ -222,14 +222,14 @@ public class RoleController : ControllerBase
             return BadRequest();
         }
 
-        var changeResult = await _roleService.DeleteRole(guid);
+        var deleteResult = await _roleService.DeleteRole(guid);
 
-        if (changeResult.Status == RoleChangeStatus.RoleNotFound)
+        if (deleteResult.Status == RoleSaveStatus.RoleNotFound)
         {
             return NotFound();
         }
 
-        if (changeResult.Status == RoleChangeStatus.RoleInUse)
+        if (deleteResult.Status == RoleSaveStatus.RoleInUse)
         {
             return Conflict();
         }

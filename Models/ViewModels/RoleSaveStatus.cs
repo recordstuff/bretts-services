@@ -1,6 +1,6 @@
 namespace bretts_services.Models.ViewModels;
 
-public enum RoleChangeStatus
+public enum RoleSaveStatus
 {
     Success,
     RoleNotFound,
