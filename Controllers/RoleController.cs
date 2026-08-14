@@ -36,12 +36,12 @@ public class RoleController : ControllerBase
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
     /// <response code="500">An unexpected server or database error occurred.</response>
-    [HttpGet("roles")]
+    [HttpGet("allroles")]
     [ProducesResponseType(typeof(List<NameGuidPair>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Roles()
+    public async Task<IActionResult> GetRoles()
     {
         var roles = await _roleService.GetRoles();
 
@@ -66,13 +66,13 @@ public class RoleController : ControllerBase
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
     /// <response code="500">An unexpected server or database error occurred.</response>
-    [HttpGet("roles/paged")]
+    [HttpGet("roles")]
     [ProducesResponseType(typeof(PaginationResult<NameGuidPair>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> PagedRoles(int page, int pageSize, string? searchText = null,
+    public async Task<IActionResult> GetRoles(int page, int pageSize, string? searchText = null,
         RolesSortColumn sortColumn = RolesSortColumn.Name, SortDirection sortDirection = SortDirection.Ascending)
     {
         if (page < 1)
