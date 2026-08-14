@@ -7,7 +7,7 @@ namespace bretts_services.Controllers;
 /// </summary>
 [Authorize(Roles = "Admin")]
 [ApiController]
-[Route("[controller]")]
+[Route("Roles")]
 public class RoleController : ControllerBase
 {
     private readonly ILogger<RoleController> _logger;
@@ -103,7 +103,7 @@ public class RoleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Role(Guid guid)
+    public async Task<IActionResult> GetRole(Guid guid)
     {
         if (guid == Guid.Empty)
         {
