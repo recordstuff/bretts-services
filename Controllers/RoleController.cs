@@ -7,7 +7,7 @@ namespace bretts_services.Controllers;
 /// </summary>
 [Authorize(Roles = "Admin")]
 [ApiController]
-[Route("Roles")]
+[Route("[controller]")]
 public class RoleController : ControllerBase
 {
     private readonly ILogger<RoleController> _logger;
@@ -41,7 +41,7 @@ public class RoleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetRoles()
+    public async Task<IActionResult> AllRoles()
     {
         var roles = await _roleService.GetRoles();
 
@@ -72,7 +72,7 @@ public class RoleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetRoles(int page, int pageSize, string? searchText = null,
+    public async Task<IActionResult> Roles(int page, int pageSize, string? searchText = null,
         RolesSortColumn sortColumn = RolesSortColumn.Name, SortDirection sortDirection = SortDirection.Ascending)
     {
         if (page < 1)
