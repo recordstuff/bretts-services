@@ -13,7 +13,7 @@ public interface IUserService
 
     Task<bool> DeleteUser(Guid guid);
 
-    Task<UserDetail?> InsertUser(UserNew user);
+    Task<UserSaveResult> InsertUser(UserNew user);
     
-    Task<UserDetail?> UpdateUser(UserDetail user);
+    Task<UserSaveResult> UpdateUser(UserDetail user);
 }

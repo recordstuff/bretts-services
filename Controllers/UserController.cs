@@ -159,14 +159,14 @@ public class UserController : ControllerBase
             return BadRequest();
         }
 
-        var addedUser = await _userService.InsertUser(newUser);
+        var saveResult = await _userService.InsertUser(newUser);
         
-        if (addedUser is not null)
+        if (saveResult.Status == UserSaveStatus.DuplicateEmail)
         {
-            return Created(null as string, addedUser);
-        };
+            return Conflict();
+        }
 
-        return Conflict();
+        return Created(null as string, saveResult.User);
     }
 
     /// <summary>
@@ -215,12 +215,14 @@ public class UserController : ControllerBase
     /// <response code="400">The request is invalid or the user does not exist.</response>
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
+    /// <response code="409">Another user already has the supplied email address.</response>
     /// <response code="500">An unexpected server or database error occurred.</response>
     [HttpPost("update")]
     [ProducesResponseType(typeof(UserDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update(UserDetail userDetail)
     {
@@ -231,13 +233,18 @@ public class UserController : ControllerBase
             return BadRequest();
         }
 
-        var updatedUser = await _userService.UpdateUser(userDetail);
+        var saveResult = await _userService.UpdateUser(userDetail);
 
-        if (updatedUser == null)
+        if (saveResult.Status == UserSaveStatus.DuplicateEmail)
+        {
+            return Conflict();
+        }
+
+        if (saveResult.Status == UserSaveStatus.UserNotFound)
         {
             return BadRequest();
-        };
+        }
 
-        return Ok(updatedUser);
+        return Ok(saveResult.User);
     }
 }
