@@ -4,6 +4,8 @@ namespace bretts_services.Interfaces;
 
 public interface IRoleService
 {
+    Task<List<NameGuidPair>> GetRoles();
+
     Task<PaginationResult<NameGuidPair>> GetRoles(int page, int pageSize, string? searchText,
         RolesSortColumn sortColumn = RolesSortColumn.Name, SortDirection sortDirection = SortDirection.Ascending);
 

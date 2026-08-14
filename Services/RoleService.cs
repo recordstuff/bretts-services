@@ -19,6 +19,16 @@ public class RoleService : IRoleService
         _mapper = mapper;
     }
 
+    public async Task<List<NameGuidPair>> GetRoles()
+    {
+        var roles = await _brettsAppContext.Roles
+            .AsNoTracking()
+            .OrderBy(role => role.Name)
+            .ToListAsync();
+
+        return _mapper.Map<List<NameGuidPair>>(roles);
+    }
+
     public async Task<PaginationResult<NameGuidPair>> GetRoles(int page, int pageSize, string? searchText,
         RolesSortColumn sortColumn = RolesSortColumn.Name, SortDirection sortDirection = SortDirection.Ascending)
     {
