@@ -23,8 +23,30 @@ This serves three applications:
 ```
 docker pull mcr.microsoft.com/mssql/server
 
-docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=CrapTackular1999PartyTime!?!' -p 1433:1433 -d mcr.microsoft.com/mssql/server
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<sa password goes here>' -p 1433:1433 -d mcr.microsoft.com/mssql/server
 ```
+
+## Secrets
+
+The application reads its operational database connection string and JWT signing key from secret providers instead of its tracked appsettings files.
+
+For local development, set both values from the project directory with .NET User Secrets:
+
+```
+dotnet user-secrets set "ConnectionStrings:BrettsDbConnection" "<complete-sql-server-connection-string>"
+dotnet user-secrets set "UserOptions:SigningKey" "<base64-jwt-signing-key>"
+```
+
+For the production Docker Compose deployment, create these two files on the deployment machine:
+
+```
+secrets/ConnectionStrings__BrettsDbConnection
+secrets/UserOptions__SigningKey
+```
+
+Each file must contain only its secret value. The `secrets` directory is excluded from Git and the Docker build context. Docker Compose mounts the files under `/run/secrets`, and ASP.NET Core maps the double underscores in their names to configuration section separators.
+
+Changing the database password file does not change the SQL Server login password. Coordinate that separate SQL Server change with the deployment of the matching secret.
 
 ## Building the DB for the first time
 
@@ -32,5 +54,5 @@ First, create the db using Managment Studio.
 Then:
 
 ```
-dotnet ef database update --context BrettsAppContext --startup-project .\bretts-services.csproj --project .\bretts-services.csproj --connection "DataSource=tcp:192.168.0.235,1433;Database=bretts-app;User ID=sa;Password=CrapTackular1999PartyTime!?!;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False" --verbose
+dotnet ef database update --context BrettsAppContext --startup-project .\bretts-services.csproj --project .\bretts-services.csproj --connection "DataSource=tcp:192.168.0.235,1433;Database=bretts-app;User ID=sa;Password=<sa password goes here>;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False" --verbose
 ```

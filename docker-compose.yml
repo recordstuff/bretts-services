@@ -10,3 +10,12 @@ services:
 # expose 3001 as hosting port & 3001 in container port.  Apache handles 8080 to 3001
     ports:
     - 3001:3001
+    secrets:
+    - ConnectionStrings__BrettsDbConnection
+    - UserOptions__SigningKey
+
+secrets:
+  ConnectionStrings__BrettsDbConnection:
+    file: ./secrets/ConnectionStrings__BrettsDbConnection
+  UserOptions__SigningKey:
+    file: ./secrets/UserOptions__SigningKey

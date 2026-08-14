@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 
 const string sourceContext = "SourceContext";
 const string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}";
+const string dockerSecretsPath = "/run/secrets";
 
 #if DEBUG
 
@@ -22,6 +23,8 @@ Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Creating Buil
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddKeyPerFile(dockerSecretsPath, optional: true);
+
 // global exception handler
 
 builder.Services.AddExceptionHandler<ExceptionHandler>();
@@ -29,6 +32,12 @@ builder.Services.AddExceptionHandler<ExceptionHandler>();
 Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Replacing Bootstrap Logger.");
 
 var connectionString = builder.Configuration.GetConnectionString("BrettsDbConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "The ConnectionStrings:BrettsDbConnection secret is required. Configure it with .NET User Secrets for development or a Docker secret for production.");
+}
 
 // Serilog
 
@@ -83,9 +92,20 @@ builder.Services.AddCors(options =>
 
 // authentication and authorization
 
-var userOptions = builder.Configuration
-    .GetSection(nameof(UserOptions))
-    .Get<UserOptions>()!;
+var userOptionsSection = builder.Configuration.GetSection(nameof(UserOptions));
+var userOptions = userOptionsSection.Get<UserOptions>();
+
+if (userOptions == null)
+{
+    throw new InvalidOperationException(
+        "The UserOptions configuration section is required.");
+}
+
+if (string.IsNullOrWhiteSpace(userOptions.SigningKey))
+{
+    throw new InvalidOperationException(
+        "The UserOptions:SigningKey secret is required. Configure it with .NET User Secrets for development or a Docker secret for production.");
+}
 
 builder.Services.AddAuthentication(auth =>
 {
@@ -125,7 +145,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // our options and services
 
 builder.Services.Configure<UserOptions>(
-    builder.Configuration.GetSection(nameof(UserOptions)));
+    userOptionsSection);
 
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
