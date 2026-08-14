@@ -1,6 +1,6 @@
 # .Net Core 8 API Backend
 
-This project was recreated without history to prepare for adding necessary security in the future.
+This project was recreated without history to remove a day's worth of Codex work when I decided not to turn this and the react frontend into an inventory application.
 
 This serves three applications:
 
