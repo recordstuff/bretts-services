@@ -25,25 +25,38 @@ public class RoleController : ControllerBase
     }
 
     /// <summary>
-    /// Gets all assignable user roles.
+    /// Gets a filtered page of assignable user roles.
     /// </summary>
     /// <remarks>
-    /// Returns role names and public role identifiers ordered by role name. An authenticated
-    /// user with the Admin role is required.
+    /// Results can be filtered by matching the role name and sorted by public identifier or name.
+    /// An authenticated user with the Admin role is required.
     /// </remarks>
-    /// <returns>The roles available for user assignment.</returns>
-    /// <response code="200">Returns the available roles.</response>
+    /// <param name="page">The one-based page number to return. The value must be at least 1.</param>
+    /// <param name="pageSize">The maximum number of roles to return in the page.</param>
+    /// <param name="searchText">Optional text matched case-insensitively against role names.</param>
+    /// <param name="sortColumn">The role column to sort by. Defaults to name.</param>
+    /// <param name="sortDirection">The direction used to sort the selected column.</param>
+    /// <returns>A page of roles and pagination metadata.</returns>
+    /// <response code="200">Returns the requested page of roles.</response>
+    /// <response code="400">The page number is less than 1.</response>
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
     /// <response code="500">An unexpected server or database error occurred.</response>
     [HttpGet("roles")]
-    [ProducesResponseType(typeof(List<NameGuidPair>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaginationResult<NameGuidPair>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Roles()
+    public async Task<IActionResult> Roles(int page, int pageSize, string? searchText = null,
+        RolesSortColumn sortColumn = RolesSortColumn.Name, SortDirection sortDirection = SortDirection.Ascending)
     {
-        var roles = await _roleService.GetRoles();
+        if (page < 1)
+        {
+            return BadRequest("Page must be greater than 1.");
+        }
+
+        var roles = await _roleService.GetRoles(page, pageSize, searchText, sortColumn, sortDirection);
 
         return Ok(roles);
     }

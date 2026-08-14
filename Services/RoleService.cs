@@ -19,14 +19,51 @@ public class RoleService : IRoleService
         _mapper = mapper;
     }
 
-    public async Task<List<NameGuidPair>> GetRoles()
+    public async Task<PaginationResult<NameGuidPair>> GetRoles(int page, int pageSize, string? searchText,
+        RolesSortColumn sortColumn = RolesSortColumn.Name, SortDirection sortDirection = SortDirection.Ascending)
     {
-        var roles = await _brettsAppContext.Roles
-            .AsNoTracking()
-            .OrderBy(r => r.Name)
+        IQueryable<Role> query = _brettsAppContext.Roles
+            .AsNoTracking();
+
+        if (searchText != null)
+        {
+            searchText = searchText.ToLower();
+
+            query = query.Where(role => role.Name.ToLower().Contains(searchText));
+        }
+
+        var count = await query.CountAsync();
+
+        if (sortDirection == SortDirection.Descending)
+        {
+            query = sortColumn switch
+            {
+                RolesSortColumn.Id => query.OrderByDescending(role => role.RoleGuid),
+                RolesSortColumn.Name => query.OrderByDescending(role => role.Name),
+                _ => query,
+            };
+        }
+        else
+        {
+            query = sortColumn switch
+            {
+                RolesSortColumn.Id => query.OrderBy(role => role.RoleGuid),
+                RolesSortColumn.Name => query.OrderBy(role => role.Name),
+                _ => query,
+            };
+        }
+
+        var roles = await query.Skip(pageSize * (page - 1))
+            .Take(pageSize)
             .ToListAsync();
 
-        return _mapper.Map<List<NameGuidPair>>(roles);
+        return new PaginationResult<NameGuidPair>
+        {
+            Page = page,
+            PageCount = (int)Math.Ceiling((double)count / pageSize),
+            ItemCount = count,
+            Items = _mapper.Map<List<NameGuidPair>>(roles),
+        };
     }
 
     public async Task<NameGuidPair?> GetRole(Guid guid)
