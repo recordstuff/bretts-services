@@ -144,12 +144,19 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // our options and services
 
+builder.Services.AddHttpClient<LmStudioClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("LMStudio") ?? string.Empty);
+});
+
+
 builder.Services.Configure<UserOptions>(
     userOptionsSection);
 
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services
     .AddControllers()
@@ -203,15 +210,6 @@ builder.Services.AddHealthChecks()
 // configure the request pipeline using the features that were added above
 
 var app = builder.Build();
-
-/*
-app.Lifetime.ApplicationStopped.Register(async () =>
-{
-    Log.Logger.ForContext(sourceContext, nameof(Program)).Information("Calling CloseAndFlushAsync()");
-
-    await Log.CloseAndFlushAsync();
-}); */
-
 
 app.UseSerilogRequestLogging();
 
