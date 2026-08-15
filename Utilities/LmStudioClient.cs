@@ -1,8 +1,8 @@
 ﻿namespace bretts_services.Utilities;
 
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
+using bretts_services.Models.LMStudio;
 
+using System.Collections.Generic;
 public sealed class LmStudioClient
 {
     private readonly HttpClient _httpClient;
@@ -20,14 +20,16 @@ public sealed class LmStudioClient
         var request = new ChatRequest
         {
             Model = model,
-            Messages =
-            [
+            Messages = new List<ChatMessage>
+            {
                 new ChatMessage
                 {
                     Role = "user",
-                    Content = prompt
+                    Content = prompt,
                 }
-            ]
+            },
+            Temperature = 0.2,
+            MaxTokens = 150,
         };
 
         using var response = await _httpClient.PostAsJsonAsync(
@@ -41,35 +43,5 @@ public sealed class LmStudioClient
             cancellationToken: cancellationToken);
 
         return result?.Choices.FirstOrDefault()?.Message?.Content;
-    }
-
-    private sealed class ChatRequest
-    {
-        [JsonPropertyName("model")]
-        public required string Model { get; init; }
-
-        [JsonPropertyName("messages")]
-        public required List<ChatMessage> Messages { get; init; }
-    }
-
-    private sealed class ChatResponse
-    {
-        [JsonPropertyName("choices")]
-        public List<Choice> Choices { get; init; } = [];
-    }
-
-    private sealed class Choice
-    {
-        [JsonPropertyName("message")]
-        public ChatMessage? Message { get; init; }
-    }
-
-    private sealed class ChatMessage
-    {
-        [JsonPropertyName("role")]
-        public string? Role { get; init; }
-
-        [JsonPropertyName("content")]
-        public string? Content { get; init; }
     }
 }
