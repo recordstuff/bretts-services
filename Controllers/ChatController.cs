@@ -38,13 +38,24 @@ public class ChatController : ControllerBase
     /// </response>
     [AllowAnonymous] 
     [HttpPost]
-    public async Task<IActionResult> Chat([FromBody] string prompt)
+public async Task<IActionResult> Chat([FromBody] string prompt)
     {
         if (string.IsNullOrWhiteSpace(prompt))
         {
             return BadRequest("The prompt string was empty.");
         }
-        
-        return Ok(await _chatService.ChatAsync(prompt));
-    }
-}
+
+        HttpContext.Features
+        .Get<Microsoft.AspNetCore.Http.Features.IHttpResponseBodyFeature>()?
+        .DisableBuffering();
+
+        Response.ContentType = "text/plain; charset=utf-8";
+
+        await foreach (var chunk in _chatService.ChatAsync(prompt))
+        {
+            await Response.WriteAsync(chunk);
+            await Response.Body.FlushAsync();
+        }
+
+        return new EmptyResult();
+    }}

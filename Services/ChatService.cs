@@ -9,8 +9,10 @@ public class ChatService : IChatService
         _lmStudioClient = lmStudioClient;
     }
 
-    public Task<string?> ChatAsync(string prompt)
+    public IAsyncEnumerable<string> ChatAsync(string prompt)
     {
-        return _lmStudioClient.ChatAsync(prompt, "ministral-3-14b-instruct-2512");
+        var model = "mistral-7b-instruct-v0.1";
+
+        return _lmStudioClient.ChatAsync(prompt, model);
     }
 }

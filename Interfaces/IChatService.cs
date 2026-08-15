@@ -2,5 +2,5 @@
 
 public interface IChatService
 {
-    Task<string?> ChatAsync(string prompt);
+    IAsyncEnumerable<string> ChatAsync(string prompt);
 }
