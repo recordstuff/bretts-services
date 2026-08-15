@@ -36,12 +36,7 @@ public class ChatController : ControllerBase
     /// <response code="400">
     /// The prompt was empty or contained only whitespace.
     /// </response>
-    /// <response code="401">
-    /// The caller is not authenticated.
-    /// </response>
-    /// <response code="403">
-    /// The caller is not authorized as an Admin.
-    /// </response>
+    [AllowAnonymous] 
     [HttpPost]
     public async Task<IActionResult> Chat([FromBody] string prompt)
     {
