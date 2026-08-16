@@ -28,7 +28,7 @@ public sealed class LmStudioClient
             }
             ],
             Temperature = 0.2,
-            MaxTokens = 150,
+            MaxTokens = 300,
             Stream = true
         };
 

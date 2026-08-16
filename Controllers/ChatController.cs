@@ -22,7 +22,7 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
-    /// Sends a prompt to the configured language model.
+    /// Sends a prompt to the configured language model.  The response is streamed back to the client as it is generated.
     /// </summary>
     /// <param name="prompt">
     /// The prompt to send to the language model.
@@ -44,6 +44,8 @@ public async Task<IActionResult> Chat([FromBody] string prompt)
         {
             return BadRequest("The prompt string was empty.");
         }
+
+
 
         HttpContext.Features
         .Get<Microsoft.AspNetCore.Http.Features.IHttpResponseBodyFeature>()?
