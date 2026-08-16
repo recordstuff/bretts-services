@@ -166,6 +166,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(2);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
 });
 
 builder.Services.AddHttpContextAccessor();
@@ -241,14 +243,16 @@ app.UseSwaggerUI(options =>
 // Serve HTTP here except for dev; Apache handles HTTPS in production.
 //app.UseHttpsRedirection();
 
+app.UseForwardedHeaders();
+
 app.UseCors();
+
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseSession();
 
 app.MapHealthChecks("/liveness", new HealthCheckOptions
 {
