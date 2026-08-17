@@ -7,4 +7,7 @@ internal sealed class ChatStreamDelta
 
     [JsonPropertyName("content")]
     public string? Content { get; init; }
+
+    [JsonPropertyName("reasoning_content")]
+    public string? ReasoningContent { get; init; }
 }

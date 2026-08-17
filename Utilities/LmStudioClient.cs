@@ -11,10 +11,12 @@ public sealed class LmStudioClient
     private static string? _loadedModel;
 
     private readonly HttpClient _httpClient;
+    private readonly IChatHistory _chatHistory;
 
-    public LmStudioClient(HttpClient httpClient)
+    public LmStudioClient(HttpClient httpClient, IChatHistory chatHistory)
     {
         _httpClient = httpClient;
+        _chatHistory = chatHistory;
     }
 
     public async IAsyncEnumerable<string> ChatAsync(string prompt)
@@ -57,6 +59,8 @@ public sealed class LmStudioClient
                 $"{response.StatusCode}: {error}");
         }
 
+        var sb = new StringBuilder();
+
         using var stream =
             await response.Content.ReadAsStreamAsync();
 
@@ -73,6 +77,11 @@ public sealed class LmStudioClient
 
             if (data == "[DONE]")
             {
+                if (sb.Length > 0)
+                {
+                    _chatHistory.Add(new ChatMessage { Role = "assistant", Content = $"{sb}" });
+                }
+
                 yield break;
             }
 
@@ -86,6 +95,7 @@ public sealed class LmStudioClient
                 .Content;
             if (!string.IsNullOrEmpty(content))
             {
+                sb.Append(content);
                 yield return content;
             }
         }

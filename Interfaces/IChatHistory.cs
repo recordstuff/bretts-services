@@ -1,8 +1,10 @@
-﻿namespace bretts_services.Interfaces;
+﻿using bretts_services.Models.LMStudio;
+
+namespace bretts_services.Interfaces;
 
 public interface IChatHistory
 {
-    void Add(string message);
-    IReadOnlyList<string> Get();
+    void Add(ChatMessage message);
+    IReadOnlyList<ChatMessage> Get();
     void Clear();
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using bretts_services.Models.LMStudio;
+using System.Text.Json;
 
 namespace bretts_services.Services;
 
@@ -16,7 +17,7 @@ public sealed class SessionChatHistory : IChatHistory
         _httpContextAccessor.HttpContext?.Session
         ?? throw new InvalidOperationException("No active HTTP session.");
 
-    public void Add(string message)
+    public void Add(ChatMessage message)
     {
         var messages = Get().ToList();
         messages.Add(message);
@@ -26,13 +27,13 @@ public sealed class SessionChatHistory : IChatHistory
             JsonSerializer.Serialize(messages));
     }
 
-    public IReadOnlyList<string> Get()
+    public IReadOnlyList<ChatMessage> Get()
     {
         var json = Session.GetString(SessionKey);
 
         return string.IsNullOrWhiteSpace(json)
             ? []
-            : JsonSerializer.Deserialize<List<string>>(json) ?? [];
+            : JsonSerializer.Deserialize<List<ChatMessage>>(json) ?? [];
     }
 
     public void Clear()
