@@ -84,7 +84,6 @@ public sealed class LmStudioClient
                 .FirstOrDefault()?
                 .Delta?
                 .Content;
-
             if (!string.IsNullOrEmpty(content))
             {
                 yield return content;
