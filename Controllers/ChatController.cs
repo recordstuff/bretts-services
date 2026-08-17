@@ -36,16 +36,14 @@ public class ChatController : ControllerBase
     /// <response code="400">
     /// The prompt was empty or contained only whitespace.
     /// </response>
-    [AllowAnonymous] 
+    [AllowAnonymous]
     [HttpPost]
-public async Task<IActionResult> Chat([FromBody] string prompt)
+    public async Task<IActionResult> Chat([FromBody] string prompt)
     {
         if (string.IsNullOrWhiteSpace(prompt))
         {
             return BadRequest("The prompt string was empty.");
         }
-
-
 
         HttpContext.Features
         .Get<Microsoft.AspNetCore.Http.Features.IHttpResponseBodyFeature>()?
@@ -60,4 +58,22 @@ public async Task<IActionResult> Chat([FromBody] string prompt)
         }
 
         return new EmptyResult();
-    }}
+    }
+
+    /// <summary>
+    /// Returns a string that is the name of the currently loaded language model in LMStudio.
+    /// </summary>
+    /// <returns>
+    /// The string name of the currently loaded language model in LMStudio.
+    /// </returns>
+    /// <response code="200">
+    /// A model was found to return.
+    /// </response>
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<IActionResult> GetLoadedModel()
+    {
+        string loadedModel = await _chatService.GetLoadedModelAsync();
+        return Ok(loadedModel);
+    }
+}

@@ -7,6 +7,9 @@ using System.Text.Json;
 
 public sealed class LmStudioClient
 {
+    private static readonly SemaphoreSlim ModelLock = new(1, 1);
+    private static string? _loadedModel;
+
     private readonly HttpClient _httpClient;
 
     public LmStudioClient(HttpClient httpClient)
@@ -14,18 +17,20 @@ public sealed class LmStudioClient
         _httpClient = httpClient;
     }
 
-    public async IAsyncEnumerable<string> ChatAsync(string prompt, string model)
+    public async IAsyncEnumerable<string> ChatAsync(string prompt)
     {
+        var model = await GetLoadedModelAsync();
+
         var request = new ChatRequest
         {
             Model = model,
             Messages =
             [
                 new ChatMessage
-            {
-                Role = "user",
-                Content = prompt
-            }
+                {
+                    Role = "user",
+                    Content = prompt
+                }
             ],
             Temperature = 0.2,
             MaxTokens = 300,
@@ -52,7 +57,9 @@ public sealed class LmStudioClient
                 $"{response.StatusCode}: {error}");
         }
 
-        using var stream = await response.Content.ReadAsStreamAsync();
+        using var stream =
+            await response.Content.ReadAsStreamAsync();
+
         using var reader = new StreamReader(stream);
 
         while (await reader.ReadLineAsync() is { } line)
@@ -69,7 +76,8 @@ public sealed class LmStudioClient
                 yield break;
             }
 
-            var chunk = JsonSerializer.Deserialize<ChatStreamResponse>(data);
+            var chunk =
+                JsonSerializer.Deserialize<ChatStreamResponse>(data);
 
             var content = chunk?
                 .Choices
@@ -81,6 +89,81 @@ public sealed class LmStudioClient
             {
                 yield return content;
             }
+        }
+    }
+
+    public async Task<string> GetLoadedModelAsync()
+    {
+        if (_loadedModel is not null)
+        {
+            return _loadedModel;
+        }
+
+        await ModelLock.WaitAsync();
+
+        try
+        {
+            if (_loadedModel is not null)
+            {
+                return _loadedModel;
+            }
+
+            using var response =
+                await _httpClient.GetAsync("/api/v1/models");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error =
+                    await response.Content.ReadAsStringAsync();
+
+                throw new HttpRequestException(
+                    $"LM Studio returned {(int)response.StatusCode} " +
+                    $"{response.StatusCode}: {error}");
+            }
+
+            using var stream =
+                await response.Content.ReadAsStreamAsync();
+
+            using var document =
+                await JsonDocument.ParseAsync(stream);
+
+            var loadedModels = new List<string>();
+
+            foreach (var model in document.RootElement
+                         .GetProperty("models")
+                         .EnumerateArray())
+            {
+                if (model.GetProperty("type").GetString() != "llm")
+                {
+                    continue;
+                }
+
+                foreach (var instance in model
+                             .GetProperty("loaded_instances")
+                             .EnumerateArray())
+                {
+                    var id = instance.GetProperty("id").GetString();
+
+                    if (!string.IsNullOrWhiteSpace(id))
+                    {
+                        loadedModels.Add(id);
+                    }
+                }
+            }
+
+            _loadedModel = loadedModels.Count switch
+            {
+                0 => throw new InvalidOperationException(
+                    "No language model is loaded in LM Studio."),
+
+                _ => loadedModels[0],
+            };
+
+            return _loadedModel;
+        }
+        finally
+        {
+            ModelLock.Release();
         }
     }
 }

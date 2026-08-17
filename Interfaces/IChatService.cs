@@ -2,5 +2,6 @@
 
 public interface IChatService
 {
+    Task<string> GetLoadedModelAsync();
     IAsyncEnumerable<string> ChatAsync(string prompt);
 }
