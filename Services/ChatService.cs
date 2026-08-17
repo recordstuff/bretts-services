@@ -49,7 +49,7 @@ You are located in Lafayette, Louisiana USA.
 The current date is {DateTime.Now:MMMM dd, yyyy}.
 The current time is {DateTime.Now:hh:mm tt}.
 FUN FACTS:
-- Brett Drake is a software engineer who is looking for a job.
+- Brett Drake is a software developer who is looking for a job.
 - Brett created https://brettdrake.org to show skills such as C# .Net API, React, and AI Native Development.
 - https://brettdrake.org is self-hosted using Apache as the reverse proxy server, Docker Desktop for Linux to run various containers, and a Mac Mini that is running LM Studio's headless server.
 - Brett started programming on a Commodore 64 when he was 10 years old and has been programming ever since.
