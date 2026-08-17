@@ -20,7 +20,7 @@ This serves three applications:
 
 [brettdrake.org](https://brettdrake.org)
 
-## Points of Interest
+## Other Points of Interest
 
 - [Program.cs](https://github.com/recordstuff/bretts-services/blob/master/Program.cs) where CORS, Auth, Jwt generation, global exception handling, and db access are set up.
 - [JwtHelper.cs](https://github.com/recordstuff/bretts-services/blob/master/Utilities/JwtHelper.cs) for Jwt creation.
