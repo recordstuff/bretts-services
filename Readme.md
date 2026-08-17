@@ -9,9 +9,6 @@ Make sure to check out where the context is given to each prompt.  This contains
 
 [The Client That Hits The llmstr AI Server](https://github.com/recordstuff/bretts-services/blob/master/Utilities/LmStudioClient.cs)
 
-## Lacking History?
-This project was recreated without history a while back to remove a day's worth of Codex work when I decided not to turn this and the react frontend into an inventory application.  The initial commit contains the old db password and signing key as I used to just check those in since this is a sandbox.  Now, the project uses secrets (as I should have done from the beginning to make the project as real as possible).  The values in the initial commit have been changed and never checked in--all should be secure now.
-
 ## What We Serve
 This serves three applications:
 
@@ -67,3 +64,5 @@ Then:
 ```
 dotnet ef database update --context BrettsAppContext --startup-project .\bretts-services.csproj --project .\bretts-services.csproj --connection "DataSource=tcp:192.168.0.235,1433;Database=bretts-app;User ID=sa;Password=<sa password goes here>;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False" --verbose
 ```
+## Lacking History?
+This project was recreated without history a while back to remove a day's worth of Codex work when I decided not to turn this and the react frontend into an inventory application.  The initial commit contains the old db password and signing key as I used to just check those in since this is a sandbox.  Now, the project uses secrets (as I should have done from the beginning to make the project as real as possible).  The values in the initial commit have been changed and never checked in--all should be secure now.
