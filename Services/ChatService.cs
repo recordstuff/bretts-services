@@ -1,4 +1,5 @@
 ﻿using bretts_services.Models.LMStudio;
+using System.Diagnostics.Contracts;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -33,7 +34,7 @@ public class ChatService : IChatService
             historyText = JsonSerializer.Serialize<IReadOnlyList<ChatMessage>>(history);
         }
 
-        var fullPrompt = $"{GetTextHeader()} {historyText}";
+        var fullPrompt = $"{GetTextHeader()} Conversation History: {historyText}";
 
         var reply = _lmStudioClient.ChatAsync(fullPrompt);
 
@@ -62,7 +63,109 @@ FUN FACTS:
 - Brett spent many years working in PHP and Java which makes him appreciate C# .Net even more.
 - Brett downloaded his first copy of LINUX in the early 1990s.  Back then it came on many, many 3.5 inch floppy disks.
 - Typescript is Brett's second favorite language, having done Javascript for many years.
+- Brett's email address is recordstuff@hotmail.com and his phone number is (337) 781-3074.
+- Brett graduated from the University of Louisiana at Lafayette in 1997 with a Bachelor of Science in Computer Science (Scientific Option w/ Math minor).
+- Brett is Lean Agile certified and enjoys working in agile environments.
 ";
+        // Job history
+
+        var jobHistory = new List<JobInstance>
+        {
+            new JobInstance
+            {
+                Company = "Courser / Rader (Formerly CBM)",
+                Title = "Developer 2 (Formerly Senior Developer)",
+                Location = "Remote in Lafayette, LA",
+                StartMonth = 1,
+                StartYear = 2025,
+                EndMonth = 12,
+                EndYear = 2025,
+                Summary = "Mobile and website development using C# MVC, Blazor, Maui iOS, App Connect, Apple Developer. iOS, APK and Windows mobile.  Much Azure app server and database creation and maintenance.",
+            },
+            new JobInstance
+            {
+                Company = "PHI Helipass",
+                Title = "Senior Developer",
+                Location = "Remote in Lafayette, LA",
+                StartMonth = 3,
+                StartYear = 2024,
+                EndMonth = 10,
+                EndYear = 2024,
+                Summary = "Work on websites in C# .Net with Typescript front ends using KnockoutJS, DDL scripts for Oracle databases, SQL, Entity Framework Core, Xamarin apps, Soap services, GRPC services.",
+            },
+            new JobInstance
+            {
+                Company = "Blue Modus",
+                Title = "Senior Developer",
+                Location = "Remote",
+                StartMonth = 7,
+                StartYear = 2023,
+                EndMonth = 10,
+                EndYear = 2023,
+                Summary = "Use the Kentico CMS: C# .Net Core, SQL Server, Vue.js.  Use Azure Pipelines to push builds to lower environments.  Work on Azure Build Pipelines and deployment code.",
+            },
+            new JobInstance
+            {
+                Company = "Opmtomi",
+                Title = "Senior Developer",
+                Location = "Remote",
+                StartMonth = 7,
+                StartYear = 2023,
+                EndMonth = 10,
+                EndYear = 2023,
+                Summary = "Use the Kentico CMS: C# .Net Core, SQL Server, Vue.js.  Use Azure Pipelines to push builds to lower environments.  Work on Azure Build Pipelines and deployment code.",
+            },
+            new JobInstance
+            {
+                Company = "Finexio",
+                Title = "Senior Developer",
+                Location = "Remote",
+                StartMonth = 5,
+                StartYear = 2022,
+                EndMonth = 2,
+                EndYear = 2023,
+                Summary = "C# and AWS Developer on Accounts Payable as a service platform. MongoDB, Postgres, React, Typescript, Node JS.  Reading and debugging Python in order to port it.",
+            },
+            new JobInstance
+            {
+                Company = "Perficient",
+                Title = "Technical Consultant",
+                Location = "Hybrid in Lafayette, LA",
+                StartMonth = 5,
+                StartYear = 2018,
+                EndMonth = 5,
+                EndYear = 2022,
+                Clients = "Pubilx Grocery Stores twice, Lumen (Formerly CenturyLink) twice, National Device Repair Center",
+                Summary = "C# API Developer, Java Developer, Angular Developer, MS SQL Server, Oracle, Microservices.",
+            },
+            new JobInstance
+            {
+                Company = "Compugistics",
+                Title = "Senior Developer",
+                Location = "Hybrid in Lafayette, LA",
+                StartMonth = 7,
+                StartYear = 2011,
+                EndMonth = 3,
+                EndYear = 2018,
+                Summary = "PHP and Java developer hitting MySQL and then MariaDB. jQuery, Angular, LINUX vm creation and configuration.",
+            },
+            new JobInstance
+            {
+                Company = "Independent Contractor",
+                Title = "Web Developer",
+                Location = "Lafayette, LA",
+                StartMonth = 1,
+                StartYear = 2011,
+                EndMonth = 1,
+                EndYear = 2012,
+                Summary = "Provided schema for an inventory web app where inventory objects had attributes and contained other objects using Entity Framework Code First (C# ASP.NET, MS SQL Server). Assisted in monetizing customers’ VM usage (PHP, LINUX) and Joomla theme customizations.",
+            },
+        };
+
+        var jobHistoryText = JsonSerializer.Serialize<List<JobInstance>>(jobHistory);
+
+        header += $"{Environment.NewLine} Job History: {jobHistoryText}";
+
         return header;
     }
 }
