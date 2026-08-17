@@ -1,7 +1,15 @@
 # .Net Core 8 API Backend
 
-This project was recreated without history to remove a day's worth of Codex work when I decided not to turn this and the react frontend into an inventory application.  The initial commit contains the old db password and signing key as I used to just check those in since this is a sandbox.  Now, the project uses secrets (as I should have done from the beginning to make the project as real as possible).  The values in the initial commit have been changed and never checked in--all should be secure now.
+## AI Native Development Is Here
+Make sure to check out where the context is given to each prompt.  This contains the session's conversation history as well as my job history and fun facts.  Context is critical to AI Native Dev, so I'm going to keep thinking about this.
 
+[Giving Context to AI](https://github.com/recordstuff/bretts-services/blob/master/Services/ChatService.cs)
+[The Client That Hits The llmstr AI Server](https://github.com/recordstuff/bretts-services/blob/master/Utilities/LmStudioClient.cs)
+
+## Lacking History?
+This project was recreated without history a while back to remove a day's worth of Codex work when I decided not to turn this and the react frontend into an inventory application.  The initial commit contains the old db password and signing key as I used to just check those in since this is a sandbox.  Now, the project uses secrets (as I should have done from the beginning to make the project as real as possible).  The values in the initial commit have been changed and never checked in--all should be secure now.
+
+## What We Serve
 This serves three applications:
 
 | Application | Repo |
