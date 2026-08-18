@@ -1,7 +1,7 @@
 ﻿namespace bretts_services.Controllers;
 
 /// <summary>
-/// Provides endpoints for interacting with LMStudio's configured language model.  These endpoints call llmster which is the headless version of LMStudio.
+/// AI Related endpoints for interacting with LMStudio's configured language model.  These endpoints call llmster which is the headless version of LMStudio.  Chatting with the LLM is done through these endpoints.
 /// </summary>
 [Authorize(Roles = "Admin")]
 [ApiController]
