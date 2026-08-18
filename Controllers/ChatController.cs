@@ -1,7 +1,7 @@
 ﻿namespace bretts_services.Controllers;
 
 /// <summary>
-/// Provides endpoints for interacting with LMStudio's configured language model.
+/// Provides endpoints for interacting with LMStudio's configured language model.  These endpoints call llmster which is the headless version of LMStudio.
 /// </summary>
 [Authorize(Roles = "Admin")]
 [ApiController]
@@ -64,7 +64,7 @@ public class ChatController : ControllerBase
     /// Returns a string that is the name of the currently loaded language model in LMStudio.
     /// </summary>
     /// <returns>
-    /// The string name of the currently loaded language model in LMStudio.
+    /// The string name of the currently loaded language model in LMStudio (llmster).
     /// </returns>
     /// <response code="200">
     /// A model was found to return.
