@@ -1,7 +1,7 @@
 namespace bretts_services.Models.Entities;
 
 /// <summary>
-/// Provides read-only access to the database owned and migrated by JunkEmailCleaner.
+/// Provides access to the database owned and migrated by JunkEmailCleaner.
 /// </summary>
 public class JunkEmailCleanerContext : DbContext
 {
@@ -15,7 +15,7 @@ public class JunkEmailCleanerContext : DbContext
     }
 
     /// <summary>
-    /// Gets the stored message sources captured by JunkEmailCleaner.
+    /// Gets or sets the stored message sources captured by JunkEmailCleaner.
     /// </summary>
     public DbSet<MessageSource> MessageSources { get; set; }
 

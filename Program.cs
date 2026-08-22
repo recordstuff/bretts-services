@@ -149,7 +149,6 @@ builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
 builder.Services.AddDbContext<Entities.JunkEmailCleanerContext>(options =>
 {
     options.UseSqlServer(junkEmailCleanerConnectionString);
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 // automapper

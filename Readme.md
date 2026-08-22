@@ -36,7 +36,7 @@ docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<sa password goes here>' -p 1433:1
 
 ## Secrets
 
-The application reads its operational database connection strings and JWT signing key from secret providers instead of its tracked appsettings files. `BrettsDbConnection` is used for the bretts-services database. `JunkEmailCleanerDbConnection` provides read-only access to the existing `JunkEmailCleaner` database; JunkEmailCleaner remains responsible for that database's migrations.
+The application reads its operational database connection strings and JWT signing key from secret providers instead of its tracked appsettings files. `BrettsDbConnection` is used for the bretts-services database. `JunkEmailCleanerDbConnection` provides access to the existing `JunkEmailCleaner` database; JunkEmailCleaner remains responsible for that database's migrations.
 
 For local development, set all values from the project directory with .NET User Secrets:
 
@@ -58,7 +58,7 @@ Each file must contain only its secret value. The `secrets` directory is exclude
 
 Changing the database password file does not change the SQL Server login password. Coordinate that separate SQL Server change with the deployment of the matching secret.
 
-For least privilege, the SQL Server login in `ConnectionStrings__JunkEmailCleanerDbConnection` should have read-only access to the `JunkEmailCleaner` database.
+For least privilege, the SQL Server login in `ConnectionStrings__JunkEmailCleanerDbConnection` should be limited to selecting, inserting, updating, and deleting rows in the `MessageSources` table.
 
 ## Building the DB for the first time
 
