@@ -1,6 +1,5 @@
 using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
-using Microsoft.Data.SqlClient;
 
 namespace bretts_services.Controllers;
 
@@ -66,7 +65,6 @@ public class MessageSourceController : ControllerBase
             {
                 MessageSourceId = messageSource.MessageSourceId,
                 BlockedSenderName = messageSource.BlockedSenderName,
-                GraphMessageId = messageSource.GraphMessageId,
             })
             .ToListAsync(cancellationToken);
 
@@ -107,8 +105,7 @@ public class MessageSourceController : ControllerBase
             {
                 MessageSourceId = candidate.MessageSourceId,
                 BlockedSenderName = candidate.BlockedSenderName,
-                ViewMessageSourceText = candidate.ViewMessageSourceText,
-                GraphMessageId = candidate.GraphMessageId,
+                MessageSource = candidate.MessageSource,
             })
             .SingleOrDefaultAsync(cancellationToken);
 
@@ -127,10 +124,10 @@ public class MessageSourceController : ControllerBase
     /// <param name="cancellationToken">Signals that the request has been cancelled.</param>
     /// <returns>The stored message source including its generated database identifier.</returns>
     /// <response code="201">The message source was stored successfully.</response>
-    /// <response code="400">The Graph message identifier is missing or too long.</response>
+    /// <response code="400">The blocked sender name is missing.</response>
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
-    /// <response code="409">The Graph message identifier is already stored.</response>
+    /// <response code="409">The complete blocked sender name is already stored.</response>
     /// <response code="500">An unexpected server or database error occurred.</response>
     [HttpPost("insert")]
     [ProducesResponseType(typeof(MessageSourceDetail), StatusCodes.Status201Created)]
@@ -142,35 +139,26 @@ public class MessageSourceController : ControllerBase
     public async Task<IActionResult> Insert(MessageSourceNew newMessageSource,
         CancellationToken cancellationToken = default)
     {
-        var validationResult = ValidateGraphMessageId(newMessageSource.GraphMessageId);
+        var validationResult = ValidateBlockedSenderName(newMessageSource.BlockedSenderName);
 
         if (validationResult != null)
         {
             return validationResult;
         }
 
-        if (await GraphMessageIdExists(newMessageSource.GraphMessageId, null, cancellationToken))
+        if (await BlockedSenderNameExists(newMessageSource.BlockedSenderName, null, cancellationToken))
         {
             return Conflict();
         }
 
-        var messageSource = new Models.Entities.MessageSource
+        var messageSource = new StoredMessageSource
         {
             BlockedSenderName = newMessageSource.BlockedSenderName,
-            ViewMessageSourceText = newMessageSource.ViewMessageSourceText,
-            GraphMessageId = newMessageSource.GraphMessageId,
+            MessageSource = newMessageSource.MessageSource,
         };
 
         _junkEmailCleanerContext.MessageSources.Add(messageSource);
-
-        try
-        {
-            await _junkEmailCleanerContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException exception) when (IsUniqueConstraintViolation(exception))
-        {
-            return Conflict();
-        }
+        await _junkEmailCleanerContext.SaveChangesAsync(cancellationToken);
 
         var detail = CreateDetail(messageSource);
 
@@ -184,11 +172,11 @@ public class MessageSourceController : ControllerBase
     /// <param name="cancellationToken">Signals that the request has been cancelled.</param>
     /// <returns>The updated message source.</returns>
     /// <response code="200">The message source was updated successfully.</response>
-    /// <response code="400">The database identifier or Graph message identifier is invalid.</response>
+    /// <response code="400">The database identifier or blocked sender name is invalid.</response>
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
     /// <response code="404">No message source has the supplied database identifier.</response>
-    /// <response code="409">Another message source already has the Graph message identifier.</response>
+    /// <response code="409">Another message source already has the complete blocked sender name.</response>
     /// <response code="500">An unexpected server or database error occurred.</response>
     [HttpPost("update")]
     [ProducesResponseType(typeof(MessageSourceDetail), StatusCodes.Status200OK)]
@@ -206,14 +194,14 @@ public class MessageSourceController : ControllerBase
             return BadRequest("Message source ID must be at least 1.");
         }
 
-        var validationResult = ValidateGraphMessageId(messageSourceDetail.GraphMessageId);
+        var validationResult = ValidateBlockedSenderName(messageSourceDetail.BlockedSenderName);
 
         if (validationResult != null)
         {
             return validationResult;
         }
 
-        if (await GraphMessageIdExists(messageSourceDetail.GraphMessageId,
+        if (await BlockedSenderNameExists(messageSourceDetail.BlockedSenderName,
             messageSourceDetail.MessageSourceId, cancellationToken))
         {
             return Conflict();
@@ -229,17 +217,9 @@ public class MessageSourceController : ControllerBase
         }
 
         messageSource.BlockedSenderName = messageSourceDetail.BlockedSenderName;
-        messageSource.ViewMessageSourceText = messageSourceDetail.ViewMessageSourceText;
-        messageSource.GraphMessageId = messageSourceDetail.GraphMessageId;
+        messageSource.MessageSource = messageSourceDetail.MessageSource;
 
-        try
-        {
-            await _junkEmailCleanerContext.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException exception) when (IsUniqueConstraintViolation(exception))
-        {
-            return Conflict();
-        }
+        await _junkEmailCleanerContext.SaveChangesAsync(cancellationToken);
 
         return Ok(CreateDetail(messageSource));
     }
@@ -285,26 +265,21 @@ public class MessageSourceController : ControllerBase
         return Ok(true);
     }
 
-    private BadRequestObjectResult? ValidateGraphMessageId(string? graphMessageId)
+    private BadRequestObjectResult? ValidateBlockedSenderName(string? blockedSenderName)
     {
-        if (string.IsNullOrWhiteSpace(graphMessageId))
+        if (string.IsNullOrWhiteSpace(blockedSenderName))
         {
-            return BadRequest("Graph message ID is required.");
-        }
-
-        if (graphMessageId.Length > 512)
-        {
-            return BadRequest("Graph message ID cannot exceed 512 characters.");
+            return BadRequest("Blocked sender name is required.");
         }
 
         return null;
     }
 
-    private Task<bool> GraphMessageIdExists(string graphMessageId, long? excludedMessageSourceId,
+    private Task<bool> BlockedSenderNameExists(string blockedSenderName, long? excludedMessageSourceId,
         CancellationToken cancellationToken)
     {
         var query = _junkEmailCleanerContext.MessageSources
-            .Where(messageSource => messageSource.GraphMessageId == graphMessageId);
+            .Where(messageSource => messageSource.BlockedSenderName == blockedSenderName);
 
         if (excludedMessageSourceId.HasValue)
         {
@@ -314,24 +289,13 @@ public class MessageSourceController : ControllerBase
         return query.AnyAsync(cancellationToken);
     }
 
-    private static bool IsUniqueConstraintViolation(DbUpdateException exception)
-    {
-        if (exception.InnerException is not SqlException sqlException)
-        {
-            return false;
-        }
-
-        return sqlException.Number is 2601 or 2627;
-    }
-
-    private static MessageSourceDetail CreateDetail(Models.Entities.MessageSource messageSource)
+    private static MessageSourceDetail CreateDetail(StoredMessageSource messageSource)
     {
         return new MessageSourceDetail
         {
             MessageSourceId = messageSource.MessageSourceId,
             BlockedSenderName = messageSource.BlockedSenderName,
-            ViewMessageSourceText = messageSource.ViewMessageSourceText,
-            GraphMessageId = messageSource.GraphMessageId,
+            MessageSource = messageSource.MessageSource,
         };
     }
 }
