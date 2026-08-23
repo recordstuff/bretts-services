@@ -12,10 +12,13 @@ services:
     - 3001:3001
     secrets:
     - ConnectionStrings__BrettsDbConnection
+    - ConnectionStrings__JunkEmailCleanerDbConnection
     - UserOptions__SigningKey
 
 secrets:
   ConnectionStrings__BrettsDbConnection:
     file: ./secrets/ConnectionStrings__BrettsDbConnection
+  ConnectionStrings__JunkEmailCleanerDbConnection:
+    file: ./secrets/ConnectionStrings__JunkEmailCleanerDbConnection
   UserOptions__SigningKey:
     file: ./secrets/UserOptions__SigningKey
