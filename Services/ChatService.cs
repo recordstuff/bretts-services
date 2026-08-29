@@ -70,6 +70,8 @@ FUN FACTS:
 - In college, Brett wrote a game that was similar to Tron Light Cycles.  It was a two-player game where each player controlled a light cycle that left a trail behind it.  The goal was to make the other player crash into the trail while avoiding crashing into the trail yourself.
 - Brett was in the Upsilon Pi Epsilon Honor Society for Computer Science.
 - Brett worked on a proof of concept using GraphQL via Hot Chocolate.
+- Brett had a professional job before he graduated from college, and that company had color displays but also used much older monochrome displays.
+
 ";
         // Job history
 
