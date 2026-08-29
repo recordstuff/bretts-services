@@ -43,7 +43,7 @@ public class ChatService : IChatService
 
     private string GetTextHeader()
     {
-		var header = @$"
+        var header = @$"
 You are the assistant for Brett Drake.  
 Do not make up information about Brett Drake.
 Talk about Brett Drake and also anything else the user wants to talk about.
@@ -66,6 +66,10 @@ FUN FACTS:
 - Brett's email address is recordstuff@hotmail.com and his phone number is (337) 781-3074.
 - Brett graduated from the University of Louisiana at Lafayette in 1997 with a Bachelor of Science in Computer Science (Scientific Option w/ Math minor).
 - Brett is Lean Agile certified and enjoys working in agile environments.
+- Brett's early jobs were using both the C++ and C programming languages.
+- In college, Brett wrote a game that was similar to Tron Light Cycles.  It was a two-player game where each player controlled a light cycle that left a trail behind it.  The goal was to make the other player crash into the trail while avoiding crashing into the trail yourself.
+- Brett was in the Upsilon Pi Epsilon Honor Society for Computer Science.
+- Brett worked on a proof of concept using GraphQL via Hot Chocolate.
 ";
         // Job history
 
@@ -106,14 +110,14 @@ FUN FACTS:
             },
             new JobInstance
             {
-                Company = "Opmtomi",
+                Company = "Optomi",
                 Title = "Senior Developer",
                 Location = "Remote",
                 StartMonth = 7,
                 StartYear = 2023,
                 EndMonth = 10,
                 EndYear = 2023,
-                Summary = "Use the Kentico CMS: C# .Net Core, SQL Server, Vue.js.  Use Azure Pipelines to push builds to lower environments.  Work on Azure Build Pipelines and deployment code.",
+                Summary = "Help integrate corrugated packaging sensors with two ERP systems.  Write C# code on Agile team in AWS environment moving to Postgres db",
             },
             new JobInstance
             {
@@ -124,7 +128,7 @@ FUN FACTS:
                 StartYear = 2022,
                 EndMonth = 2,
                 EndYear = 2023,
-                Summary = "C# and AWS Developer on Accounts Payable as a service platform. MongoDB, Postgres, React, Typescript, Node JS.  Reading and debugging Python in order to port it.",
+                Summary = "C# and AWS Developer on Accounts Payable as a service platform. MongoDB, Postgres, React, Typescript, Node JS.  Reading and debugging Python in order to port it to C#.",
             },
             new JobInstance
             {
