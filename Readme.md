@@ -36,25 +36,29 @@ docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=<sa password goes here>' -p 1433:1
 
 ## Secrets
 
-The application reads its operational database connection string and JWT signing key from secret providers instead of its tracked appsettings files.
+The application reads its operational database connection strings and JWT signing key from secret providers instead of its tracked appsettings files. `BrettsDbConnection` is used for the bretts-services database. `JunkEmailCleanerDbConnection` provides access to the existing `JunkEmailCleaner` database; JunkEmailCleaner remains responsible for that database's migrations.
 
-For local development, set both values from the project directory with .NET User Secrets:
+For local development, set all values from the project directory with .NET User Secrets:
 
 ```
 dotnet user-secrets set "ConnectionStrings:BrettsDbConnection" "<complete-sql-server-connection-string>"
+dotnet user-secrets set "ConnectionStrings:JunkEmailCleanerDbConnection" "<complete-junk-email-cleaner-connection-string>"
 dotnet user-secrets set "UserOptions:SigningKey" "<base64-jwt-signing-key>"
 ```
 
-For the production Docker Compose deployment, create these two files on the deployment machine:
+For the production Docker Compose deployment, create these three files on the deployment machine:
 
 ```
 secrets/ConnectionStrings__BrettsDbConnection
+secrets/ConnectionStrings__JunkEmailCleanerDbConnection
 secrets/UserOptions__SigningKey
 ```
 
 Each file must contain only its secret value. The `secrets` directory is excluded from Git and the Docker build context. Docker Compose mounts the files under `/run/secrets`, and ASP.NET Core maps the double underscores in their names to configuration section separators.
 
 Changing the database password file does not change the SQL Server login password. Coordinate that separate SQL Server change with the deployment of the matching secret.
+
+For least privilege, the SQL Server login in `ConnectionStrings__JunkEmailCleanerDbConnection` should be limited to selecting, inserting, updating, and deleting rows in the `MessageSources` table.
 
 ## Building the DB for the first time
 
