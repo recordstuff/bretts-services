@@ -1,5 +1,6 @@
+using bretts_services.Mappings;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 const string sourceContext = "SourceContext";
 const string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] ({SourceContext}) {Message:lj}{NewLine}{Exception}";
@@ -151,10 +152,6 @@ builder.Services.AddDbContext<Entities.JunkEmailCleanerContext>(options =>
     options.UseSqlServer(junkEmailCleanerConnectionString);
 });
 
-// automapper
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 // our options and services
 
 builder.Services.AddHttpClient<LmStudioClient>(client =>
@@ -171,6 +168,11 @@ builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatHistory, SessionChatHistory>();
+
+// Mapperly
+
+builder.Services.AddScoped<RoleMapping>();
+builder.Services.AddScoped<UserMapping>();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -210,19 +212,9 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
     {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
     });
 
     options.OperationFilter<SwaggerFilter>();
@@ -276,16 +268,6 @@ app.MapHealthChecks("/deep", new HealthCheckOptions
 {
     Predicate = healthCheck => healthCheck.Tags.Contains("deep")
 });
-
-#if DEBUG
-
-var automapperConfig = app.Services.GetService<AutoMapper.IConfigurationProvider>();
-
-ArgumentNullException.ThrowIfNull(automapperConfig, nameof(AutoMapper.IConfigurationProvider));
-
-automapperConfig.AssertConfigurationIsValid();
-
-#endif
 
 try
 {

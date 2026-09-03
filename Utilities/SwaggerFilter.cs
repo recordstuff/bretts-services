@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+﻿using System.Text.Json.Nodes;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace bretts_services.Utilities;
@@ -12,14 +11,14 @@ public class SwaggerFilter : IOperationFilter
         switch (context.MethodInfo.Name)
         {
             case "Login":
-                if (operation.RequestBody?.Content.TryGetValue(
-                            "application/json",
-                            out var content) == true)
+                if (operation.RequestBody?.Content?.TryGetValue(
+                        "application/json",
+                        out var content) == true)
                 {
-                    content.Example = new OpenApiObject
+                    content.Example = new JsonObject
                     {
-                        ["email"] = new OpenApiString("adminanduser@brettdrake.org"),
-                        ["password"] = new OpenApiString("test123")
+                        ["email"] = "adminanduser@brettdrake.org",
+                        ["password"] = "test123"
                     };
                 }
                 break;

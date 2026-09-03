@@ -1,4 +1,5 @@
-﻿using bretts_services.Models.Entities;
+﻿using bretts_services.Mappings;
+using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
 
 namespace bretts_services.Services;
@@ -8,13 +9,13 @@ public class UserService : ServiceBase, IUserService
     private const string UserEmailIndexName = "IX_Users_Email";
 
     private readonly UserOptions _userOptions;
-    private readonly IMapper _mapper;
+    private readonly UserMapping _userMapping;
 
-    public UserService(BrettsAppContext brettsAppContext, IOptions<UserOptions> options, IMapper mapper)
+    public UserService(BrettsAppContext brettsAppContext, IOptions<UserOptions> options, UserMapping userMapping)
         : base(brettsAppContext)
     {
         _userOptions = options.Value;
-        _mapper = mapper;
+        _userMapping = userMapping;
     }
 
     public async Task<LoginSession> Login(UserCredentials userCredintials)
@@ -95,7 +96,7 @@ public class UserService : ServiceBase, IUserService
             Page = page,
             PageCount = (int)Math.Ceiling((double)count / pageSize),
             ItemCount = count,
-            Items = _mapper.Map<List<UserSummary>>(items),
+            Items = _userMapping.ToUserSummaries(items),
         };
 
         return paginationResult;
@@ -108,7 +109,9 @@ public class UserService : ServiceBase, IUserService
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.UserGuid == guid);
 
-        return _mapper.Map<UserDetail>(user);
+        if (user == null) return null;
+
+        return _userMapping.ToUserDetail(user);
     }
 
     public async Task<UserSaveResult> InsertUser(UserNew user)
@@ -125,7 +128,7 @@ public class UserService : ServiceBase, IUserService
             return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
         }
 
-        var newUser = _mapper.Map<User>(user);
+        var newUser = _userMapping.ToUser(user);
 
         newUser.Password = Hashing.Hash(user.Password, out var salt);
         newUser.Salt = salt;
@@ -145,7 +148,7 @@ public class UserService : ServiceBase, IUserService
             return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
         }
 
-        var addedUser = _mapper.Map<UserDetail>(newUser);
+        var addedUser = _userMapping.ToUserDetail(newUser);
 
         return new UserSaveResult
         {
@@ -182,7 +185,7 @@ public class UserService : ServiceBase, IUserService
             return new UserSaveResult { Status = UserSaveStatus.UserNotFound };
         }
 
-        _mapper.Map(user, dbUser);
+        _userMapping.UpdateUser(user, dbUser);
 
         var roleGuids = dbUser.Roles.Select(r => r.RoleGuid).ToList();
 
@@ -199,7 +202,7 @@ public class UserService : ServiceBase, IUserService
             return new UserSaveResult { Status = UserSaveStatus.DuplicateEmail };
         }
 
-        var updatedUser = _mapper.Map<UserDetail>(dbUser);
+        var updatedUser = _userMapping.ToUserDetail(dbUser);
 
         return new UserSaveResult
         {

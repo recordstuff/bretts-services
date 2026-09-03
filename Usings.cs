@@ -29,6 +29,5 @@ global using ViewModels = bretts_services.Models.ViewModels;
 
 // third party
 
-global using AutoMapper;
 global using Serilog;
 global using Serilog.Sinks.MSSqlServer;

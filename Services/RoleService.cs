@@ -1,4 +1,5 @@
-﻿using bretts_services.Models.Entities;
+﻿using bretts_services.Mappings;
+using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
 
 namespace bretts_services.Services;
@@ -7,12 +8,12 @@ public class RoleService : ServiceBase, IRoleService
 {
     private const string RoleNameIndexName = "IX_Roles_Name";
 
-    private readonly IMapper _mapper;
+    private readonly RoleMapping _roleMapping;
 
-    public RoleService(BrettsAppContext brettsAppContext, IMapper mapper)
+    public RoleService(BrettsAppContext brettsAppContext, RoleMapping roleMapping)
         : base(brettsAppContext)
     {
-        _mapper = mapper;
+        _roleMapping = roleMapping;
     }
 
     public async Task<List<NameGuidPair>> GetRoles()
@@ -22,7 +23,7 @@ public class RoleService : ServiceBase, IRoleService
             .OrderBy(role => role.Name)
             .ToListAsync();
 
-        return _mapper.Map<List<NameGuidPair>>(roles);
+        return _roleMapping.ToNameGuidPairs(roles);
     }
 
     public async Task<PaginationResult<NameGuidPair>> GetRoles(int page, int pageSize, string? searchText,
@@ -68,7 +69,7 @@ public class RoleService : ServiceBase, IRoleService
             Page = page,
             PageCount = (int)Math.Ceiling((double)count / pageSize),
             ItemCount = count,
-            Items = _mapper.Map<List<NameGuidPair>>(roles),
+            Items = _roleMapping.ToNameGuidPairs(roles),
         };
     }
 
@@ -78,7 +79,9 @@ public class RoleService : ServiceBase, IRoleService
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.RoleGuid == guid);
 
-        return _mapper.Map<NameGuidPair>(role);
+        return role == null
+        ? null
+        : _roleMapping.ToNameGuidPair(role);
     }
 
     public async Task<RoleSaveResult> InsertRole(RoleNew role)
@@ -94,7 +97,7 @@ public class RoleService : ServiceBase, IRoleService
             return new RoleSaveResult { Status = RoleSaveStatus.DuplicateName };
         }
 
-        var newRole = _mapper.Map<Role>(role);
+        var newRole = _roleMapping.ToRole(role);
 
         await _brettsAppContext.Roles.AddAsync(newRole);
 
@@ -106,7 +109,7 @@ public class RoleService : ServiceBase, IRoleService
         return new RoleSaveResult
         {
             Status = RoleSaveStatus.Success,
-            Role = _mapper.Map<NameGuidPair>(newRole),
+            Role = _roleMapping.ToNameGuidPair(newRole),
         };
     }
 
@@ -137,7 +140,7 @@ public class RoleService : ServiceBase, IRoleService
             return new RoleSaveResult { Status = RoleSaveStatus.RoleNotFound };
         }
 
-        _mapper.Map(role, dbRole);
+        _roleMapping.UpdateRole(role, dbRole);
 
         if (!await TrySaveChanges(RoleNameIndexName))
         {
@@ -147,7 +150,7 @@ public class RoleService : ServiceBase, IRoleService
         return new RoleSaveResult
         {
             Status = RoleSaveStatus.Success,
-            Role = _mapper.Map<NameGuidPair>(dbRole),
+            Role = _roleMapping.ToNameGuidPair(dbRole),
         };
     }
 
