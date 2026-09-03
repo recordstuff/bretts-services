@@ -13,7 +13,7 @@ Make sure to check out where the context is given to each prompt.  This contains
 
 I was a big fan of AutoMapper some years ago.  Jimmy Bogard's library was a great way to avoid writing boilerplate mappings.
 After the big security vulnerability in AutoMapper, and ESPECIALLY since you now have to register it and continually update your licnese to be valid,
-It was getting way too cumbersome.  Mapperly seems to be the replacement for AutoMapper, and it is a compile-time source generator that creates the mapping code for you.  It is fast, and it is free.
+it was getting way too cumbersome.  Mapperly seems to be the replacement for AutoMapper, and it is a compile-time source generator that creates the mapping code for you.  It is fast, and it is free.
 
 ## What We Serve
 This serves three applications:
