@@ -1,4 +1,4 @@
-# .Net Core 8 API Backend
+# .Net Core 10 API Backend
 
 ## AI Native Development Is Here
 Make sure to check out where the context is given to each prompt.  This contains the session's conversation history as well as my job history and fun facts.  Context is critical to AI Native Dev, so I'm going to keep thinking about this.
@@ -8,6 +8,12 @@ Make sure to check out where the context is given to each prompt.  This contains
 [Giving Context to AI](https://github.com/recordstuff/bretts-services/blob/master/Services/ChatService.cs)
 
 [The Client That Hits The llmstr AI Server](https://github.com/recordstuff/bretts-services/blob/master/Utilities/LmStudioClient.cs)
+
+## AutoMapper Is Gone -- Here is Mapperly
+
+I was a big fan of AutoMapper some years ago.  Jimmy Bogard's library was a great way to avoid writing boilerplate mappings.
+After the big security vulnerability in AutoMapper, and ESPECIALLY since you now have to register it and continually update your licnese to be valid,
+It was getting way too cumbersome.  Mapperly seems to be the replacement for AutoMapper, and it is a compile-time source generator that creates the mapping code for you.  It is fast, and it is free.
 
 ## What We Serve
 This serves three applications:
