@@ -61,16 +61,21 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
-    /// Returns the instance ID of the current language model.
+    /// Returns the model key of the current language model.
     /// </summary>
     /// <returns>
-    /// The LM Studio instance ID used by subsequent chat requests.
+    /// The model key that identifies the current language model.
     /// </returns>
     /// <response code="200">
-    /// A current language-model instance was found.
+    /// The current language model was found and its model key is returned.
+    /// </response>
+    /// <response code="500">
+    /// No language model is loaded or LM Studio could not return its model list.
     /// </response>
     [AllowAnonymous]
     [HttpGet]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLoadedModel()
     {
         string loadedModel = await _chatService.GetLoadedModelAsync();
@@ -110,7 +115,7 @@ public class ChatController : ControllerBase
     /// <see cref="GetAvailableModels"/>.
     /// </param>
     /// <returns>
-    /// The instance ID of the loaded model.
+    /// The model key of the loaded model.
     /// </returns>
     /// <remarks>
     /// The model key is validated before any model is unloaded. If the requested model is
@@ -119,7 +124,7 @@ public class ChatController : ControllerBase
     /// requested model is loaded directly.
     /// </remarks>
     /// <response code="200">
-    /// The requested model is current and its instance ID is returned.
+    /// The requested model is current and its model key is returned.
     /// </response>
     /// <response code="400">
     /// The model key was empty or contained only whitespace.

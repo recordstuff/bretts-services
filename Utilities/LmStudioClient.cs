@@ -9,7 +9,8 @@ using System.Text.Json;
 public sealed class LmStudioClient
 {
     private static readonly SemaphoreSlim ModelLock = new(1, 1);
-    private static string? _loadedModel;
+    private static string? _loadedModelKey;
+    private static string? _loadedModelInstanceId;
 
     private readonly HttpClient _httpClient;
     private readonly IChatHistory _chatHistory;
@@ -22,11 +23,11 @@ public sealed class LmStudioClient
 
     public async IAsyncEnumerable<string> ChatAsync(string prompt)
     {
-        var model = await GetLoadedModelAsync();
+        var loadedModel = await GetLoadedModelReferenceAsync();
 
         var request = new ChatRequest
         {
-            Model = model,
+            Model = loadedModel.InstanceId,
             Messages =
             [
                 new ChatMessage
@@ -97,37 +98,8 @@ public sealed class LmStudioClient
 
     public async Task<string> GetLoadedModelAsync()
     {
-        if (_loadedModel is not null)
-        {
-            return _loadedModel;
-        }
-
-        await ModelLock.WaitAsync();
-
-        try
-        {
-            if (_loadedModel is not null)
-            {
-                return _loadedModel;
-            }
-
-            var models = await GetModelsAsync();
-            var loadedInstance = FindCurrentLoadedInstance(models);
-
-            if (loadedInstance == null || string.IsNullOrWhiteSpace(loadedInstance.Id))
-            {
-                throw new InvalidOperationException(
-                    "No language model is loaded in LM Studio.");
-            }
-
-            _loadedModel = loadedInstance.Id;
-
-            return _loadedModel;
-        }
-        finally
-        {
-            ModelLock.Release();
-        }
+        var loadedModel = await GetLoadedModelReferenceAsync();
+        return loadedModel.ModelKey;
     }
 
     public async Task<IReadOnlyList<string>> GetAvailableModelsAsync()
@@ -164,29 +136,33 @@ public sealed class LmStudioClient
 
             var requestedInstance = requestedModel.LoadedInstances
                 .FirstOrDefault(instance => !string.IsNullOrWhiteSpace(instance.Id));
-            var currentInstance = FindCurrentLoadedInstance(models);
+            var currentModel = FindCurrentLoadedModel(models);
 
             if (requestedInstance?.Id is not null
-                && string.Equals(requestedInstance.Id, currentInstance?.Id, StringComparison.Ordinal))
+                && string.Equals(requestedInstance.Id, currentModel?.InstanceId, StringComparison.Ordinal))
             {
-                _loadedModel = requestedInstance.Id;
-                return _loadedModel;
+                _loadedModelKey = modelKey;
+                _loadedModelInstanceId = requestedInstance.Id;
+                return _loadedModelKey;
             }
 
-            if (currentInstance?.Id is not null)
+            if (currentModel is not null)
             {
-                await UnloadModelAsync(currentInstance.Id);
-                _loadedModel = null;
+                await UnloadModelAsync(currentModel.InstanceId);
+                _loadedModelKey = null;
+                _loadedModelInstanceId = null;
             }
 
             if (requestedInstance?.Id is not null)
             {
-                _loadedModel = requestedInstance.Id;
-                return _loadedModel;
+                _loadedModelKey = modelKey;
+                _loadedModelInstanceId = requestedInstance.Id;
+                return _loadedModelKey;
             }
 
-            _loadedModel = await LoadModelAsync(modelKey);
-            return _loadedModel;
+            _loadedModelInstanceId = await LoadModelAsync(modelKey);
+            _loadedModelKey = modelKey;
+            return _loadedModelKey;
         }
         finally
         {
@@ -240,27 +216,71 @@ public sealed class LmStudioClient
         return loadResponse.InstanceId;
     }
 
-    private static LmStudioModelInstance? FindCurrentLoadedInstance(
+    private async Task<LoadedModelReference> GetLoadedModelReferenceAsync()
+    {
+        if (_loadedModelKey is not null && _loadedModelInstanceId is not null)
+        {
+            return new LoadedModelReference(_loadedModelKey, _loadedModelInstanceId);
+        }
+
+        await ModelLock.WaitAsync();
+
+        try
+        {
+            if (_loadedModelKey is not null && _loadedModelInstanceId is not null)
+            {
+                return new LoadedModelReference(_loadedModelKey, _loadedModelInstanceId);
+            }
+
+            var models = await GetModelsAsync();
+            var loadedModel = FindCurrentLoadedModel(models);
+
+            if (loadedModel is null)
+            {
+                throw new InvalidOperationException(
+                    "No language model is loaded in LM Studio.");
+            }
+
+            _loadedModelKey = loadedModel.ModelKey;
+            _loadedModelInstanceId = loadedModel.InstanceId;
+
+            return loadedModel;
+        }
+        finally
+        {
+            ModelLock.Release();
+        }
+    }
+
+    private static LoadedModelReference? FindCurrentLoadedModel(
         IReadOnlyList<LmStudioModel> models)
     {
-        var loadedInstances = models
-            .Where(IsLanguageModel)
-            .SelectMany(model => model.LoadedInstances)
-            .Where(instance => !string.IsNullOrWhiteSpace(instance.Id))
-            .ToList();
-
-        if (_loadedModel is not null)
+        if (_loadedModelInstanceId is not null)
         {
-            var cachedInstance = loadedInstances.FirstOrDefault(instance =>
-                string.Equals(instance.Id, _loadedModel, StringComparison.Ordinal));
-
-            if (cachedInstance is not null)
+            foreach (var model in models.Where(IsLanguageModel))
             {
-                return cachedInstance;
+                var cachedInstance = model.LoadedInstances.FirstOrDefault(instance =>
+                    string.Equals(instance.Id, _loadedModelInstanceId, StringComparison.Ordinal));
+
+                if (cachedInstance?.Id is not null && !string.IsNullOrWhiteSpace(model.Key))
+                {
+                    return new LoadedModelReference(model.Key, cachedInstance.Id);
+                }
             }
         }
 
-        return loadedInstances.FirstOrDefault();
+        foreach (var model in models.Where(IsLanguageModel))
+        {
+            var loadedInstance = model.LoadedInstances
+                .FirstOrDefault(instance => !string.IsNullOrWhiteSpace(instance.Id));
+
+            if (loadedInstance?.Id is not null && !string.IsNullOrWhiteSpace(model.Key))
+            {
+                return new LoadedModelReference(model.Key, loadedInstance.Id);
+            }
+        }
+
+        return null;
     }
 
     private static bool IsLanguageModel(LmStudioModel model)
@@ -280,4 +300,6 @@ public sealed class LmStudioClient
         throw new HttpRequestException(
             $"LM Studio returned {(int)response.StatusCode} {response.StatusCode}: {error}");
     }
+
+    private sealed record LoadedModelReference(string ModelKey, string InstanceId);
 }
