@@ -1,11 +1,14 @@
 ﻿using bretts_services.Mappings;
 using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
+using Microsoft.Data.SqlClient;
 
 namespace bretts_services.Services;
 
 public class RoleService : ServiceBase, IRoleService
 {
+    private const int ForeignKeyConstraintViolation = 547;
+    private const string RoleUsersForeignKeyName = "FK_RoleUser_Roles_RolesRoleID";
     private const string RoleNameIndexName = "IX_Roles_Name";
 
     private readonly RoleMapping _roleMapping;
@@ -156,9 +159,6 @@ public class RoleService : ServiceBase, IRoleService
 
     public async Task<RoleSaveResult> DeleteRole(Guid guid)
     {
-        await using var transaction = await _brettsAppContext.Database
-            .BeginTransactionAsync(IsolationLevel.Serializable);
-
         var role = await _brettsAppContext.Roles
             .Include(existingRole => existingRole.Users)
             .FirstOrDefaultAsync(existingRole => existingRole.RoleGuid == guid);
@@ -174,9 +174,32 @@ public class RoleService : ServiceBase, IRoleService
         }
 
         _brettsAppContext.Roles.Remove(role);
-        await _brettsAppContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+
+        try
+        {
+            await _brettsAppContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception)
+            when (IsRoleInUseConstraintViolation(exception))
+        {
+            return new RoleSaveResult { Status = RoleSaveStatus.RoleInUse };
+        }
 
         return new RoleSaveResult { Status = RoleSaveStatus.Success };
+    }
+
+    private static bool IsRoleInUseConstraintViolation(DbUpdateException exception)
+    {
+        if (exception.InnerException is not SqlException sqlException)
+        {
+            return false;
+        }
+
+        if (sqlException.Number != ForeignKeyConstraintViolation)
+        {
+            return false;
+        }
+
+        return sqlException.Message.Contains(RoleUsersForeignKeyName, StringComparison.OrdinalIgnoreCase);
     }
 }
