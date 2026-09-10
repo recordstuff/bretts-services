@@ -142,14 +142,17 @@ builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
 #if DEBUG
     options.EnableSensitiveDataLogging();
 #endif
-    options.UseSqlServer(connectionString);
+    options.UseSqlServer(connectionString, providerOptions => providerOptions.EnableRetryOnFailure());
     // default this to on but could start with: options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); 
     // or could default to QueryTrackingBehavior.NoTrackingWithIdentityResolution
 });
 
 builder.Services.AddDbContext<Entities.JunkEmailCleanerContext>(options =>
 {
-    options.UseSqlServer(junkEmailCleanerConnectionString);
+    #if DEBUG
+        options.EnableSensitiveDataLogging();
+    #endif
+    options.UseSqlServer(junkEmailCleanerConnectionString, providerOptions => providerOptions.EnableRetryOnFailure());
 });
 
 // our options and services
