@@ -160,6 +160,7 @@ builder.Services.AddDbContext<Entities.JunkEmailCleanerContext>(options =>
 builder.Services.AddHttpClient<LmStudioClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("LMStudio") ?? string.Empty);
+    client.Timeout = TimeSpan.FromMinutes(10);
 });
 
 
