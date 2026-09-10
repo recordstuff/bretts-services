@@ -21,6 +21,16 @@ public class ChatService : IChatService
         return await _lmStudioClient.GetLoadedModelAsync();
     }
 
+    public async Task<IReadOnlyList<string>> GetAvailableModelsAsync()
+    {
+        return await _lmStudioClient.GetAvailableModelsAsync();
+    }
+
+    public async Task<string?> ChangeLoadedModelAsync(string model)
+    {
+        return await _lmStudioClient.ChangeLoadedModelAsync(model);
+    }
+
     public IAsyncEnumerable<string> ChatAsync(string prompt)
     {
         _chatHistory.Add(new ChatMessage { Role = "user", Content = prompt });

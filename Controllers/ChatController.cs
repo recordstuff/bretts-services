@@ -76,4 +76,56 @@ public class ChatController : ControllerBase
         string loadedModel = await _chatService.GetLoadedModelAsync();
         return Ok(loadedModel);
     }
+
+    /// <summary>
+    /// Returns the language models available in LM Studio.
+    /// </summary>
+    /// <returns>
+    /// The model keys that can be passed to <see cref="ChangeLoadedModel"/>.
+    /// </returns>
+    /// <response code="200">
+    /// The available language models were returned.
+    /// </response>
+    [HttpGet("AvailableModels")]
+    public async Task<IActionResult> GetAvailableModels()
+    {
+        var availableModels = await _chatService.GetAvailableModelsAsync();
+        return Ok(availableModels);
+    }
+
+    /// <summary>
+    /// Unloads the current language model and loads the requested model.
+    /// </summary>
+    /// <param name="model">
+    /// The LM Studio model key to load.
+    /// </param>
+    /// <returns>
+    /// The instance ID of the loaded model.
+    /// </returns>
+    /// <response code="200">
+    /// The requested model is loaded.
+    /// </response>
+    /// <response code="400">
+    /// The model key was empty or contained only whitespace.
+    /// </response>
+    /// <response code="404">
+    /// The requested language model is not available in LM Studio.
+    /// </response>
+    [HttpPut("LoadedModel")]
+    public async Task<IActionResult> ChangeLoadedModel([FromBody] string model)
+    {
+        if (string.IsNullOrWhiteSpace(model))
+        {
+            return BadRequest("The model string was empty.");
+        }
+
+        var loadedModel = await _chatService.ChangeLoadedModelAsync(model);
+
+        if (loadedModel == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(loadedModel);
+    }
 }
