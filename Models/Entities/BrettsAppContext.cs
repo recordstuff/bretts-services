@@ -38,6 +38,21 @@ public partial class BrettsAppContext : DbContext
                 new Role { RoleID = 1, Name = "Admin", RoleGuid = new Guid("cdf2beff-ea73-4d8b-9fe8-33818e52776f") },
                 new Role { RoleID = 2, Name = "User", RoleGuid = new Guid("111224ad-f6a4-4ca1-ade2-2e6ab407d8e8") }
             );
+
+            e.HasMany(role => role.Users)
+                .WithMany(user => user.Roles)
+                .UsingEntity<Dictionary<string, object>>(
+                    "RoleUser",
+                    join => join
+                        .HasOne<User>()
+                        .WithMany()
+                        .HasForeignKey("UsersUserID")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    join => join
+                        .HasOne<Role>()
+                        .WithMany()
+                        .HasForeignKey("RolesRoleID")
+                        .OnDelete(DeleteBehavior.Restrict));
         });
 
 
