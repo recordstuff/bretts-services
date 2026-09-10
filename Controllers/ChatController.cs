@@ -83,10 +83,19 @@ public class ChatController : ControllerBase
     /// <returns>
     /// The model keys that can be passed to <see cref="ChangeLoadedModel"/>.
     /// </returns>
+    /// <remarks>
+    /// Embedding models are not included.
+    /// </remarks>
     /// <response code="200">
     /// The available language models were returned.
     /// </response>
+    /// <response code="500">
+    /// LM Studio could not return its model list.
+    /// </response>
+    [AllowAnonymous]
     [HttpGet("AvailableModels")]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAvailableModels()
     {
         var availableModels = await _chatService.GetAvailableModelsAsync();
@@ -97,11 +106,16 @@ public class ChatController : ControllerBase
     /// Unloads the current language model and loads the requested model.
     /// </summary>
     /// <param name="model">
-    /// The LM Studio model key to load.
+    /// The LM Studio model key to load, sent as a JSON string. Use a key returned by
+    /// <see cref="GetAvailableModels"/>.
     /// </param>
     /// <returns>
     /// The instance ID of the loaded model.
     /// </returns>
+    /// <remarks>
+    /// If the requested model is not already current, LM Studio unloads the current instance
+    /// before loading this model.
+    /// </remarks>
     /// <response code="200">
     /// The requested model is loaded.
     /// </response>
@@ -111,7 +125,16 @@ public class ChatController : ControllerBase
     /// <response code="404">
     /// The requested language model is not available in LM Studio.
     /// </response>
+    /// <response code="500">
+    /// LM Studio could not unload the current model or load the requested model.
+    /// </response>
+    [AllowAnonymous]
     [HttpPut("LoadedModel")]
+    [Consumes("application/json")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ChangeLoadedModel([FromBody] string model)
     {
         if (string.IsNullOrWhiteSpace(model))
