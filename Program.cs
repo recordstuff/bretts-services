@@ -246,7 +246,7 @@ app.UseSwaggerUI(options =>
 {
     options.DefaultModelsExpandDepth(2);
     options.InjectStylesheet("/swagger-custom.css?v=professional-theme");
-    options.InjectJavascript("/swagger-custom.js?v=portrait-frame");
+    options.InjectJavascript("/swagger-custom.js?v=docker-cli-copy");
 });
 
 // Serve HTTP here except for dev; Apache handles HTTPS in production.

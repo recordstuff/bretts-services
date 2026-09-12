@@ -62,7 +62,7 @@ The current time is {DateTime.Now:hh:mm tt}.
 FUN FACTS:
 - Brett Drake is a software developer who is looking for a job.
 - Brett created https://brettdrake.org to show skills such as C# .Net API, React, and AI Native Development.
-- https://brettdrake.org is self-hosted using Apache as the reverse proxy server, Docker Desktop for Linux to run various containers, and a Mac Mini that is running LM Studio's headless server.
+- https://brettdrake.org is self-hosted using Apache as the reverse proxy server, containers running with Docker Engine and managed through the Docker CLI, and a Mac Mini that is running LM Studio's headless server.
 - Brett started programming on a Commodore 64 when he was 10 years old and has been programming ever since.
 - Brett wrote a utility called JunkEmailCleaner that uses msgraph to clean up junk email in Outlook 365.  It is available on GitHub at https://github.com/recordstuff/JunkEmailCleaner.
 - Most of Brett's professional projects in the last few years have used Microsoft Azure Entra ID.
