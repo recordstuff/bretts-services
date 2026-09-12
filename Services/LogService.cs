@@ -27,7 +27,7 @@ public class LogService : ILogService
                     WITH
                     (
                         [Attribute] nvarchar(4000) '$.Attribute',
-                        [Operator] int '$.Operator',
+                        [Operator] nvarchar(50) '$.Operator',
                         [Value] nvarchar(max) '$.Value'
                     ) AS [filter]
                     OUTER APPLY
@@ -41,16 +41,16 @@ public class LogService : ILogService
                     ) AS [property]
                     WHERE NOT
                     (
-                        ([filter].[Operator] = {(int)LogFilterOperator.Exists} AND [property].[key] IS NOT NULL)
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.DoesNotExist} AND [property].[key] IS NULL)
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.Equals} AND [property].[value] = [filter].[Value])
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.DoesNotEqual} AND [property].[value] <> [filter].[Value])
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.Contains} AND [property].[value] LIKE CONCAT('%', [filter].[Value], '%'))
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.DoesNotContain} AND [property].[value] NOT LIKE CONCAT('%', [filter].[Value], '%'))
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.GreaterThan} AND TRY_CONVERT(decimal(38, 10), [property].[value]) > TRY_CONVERT(decimal(38, 10), [filter].[Value]))
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.GreaterThanOrEqual} AND TRY_CONVERT(decimal(38, 10), [property].[value]) >= TRY_CONVERT(decimal(38, 10), [filter].[Value]))
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.LessThan} AND TRY_CONVERT(decimal(38, 10), [property].[value]) < TRY_CONVERT(decimal(38, 10), [filter].[Value]))
-                        OR ([filter].[Operator] = {(int)LogFilterOperator.LessThanOrEqual} AND TRY_CONVERT(decimal(38, 10), [property].[value]) <= TRY_CONVERT(decimal(38, 10), [filter].[Value]))
+                        ([filter].[Operator] = {nameof(LogFilterOperator.Exists)} AND [property].[key] IS NOT NULL)
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.DoesNotExist)} AND [property].[key] IS NULL)
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.Equals)} AND [property].[value] = [filter].[Value])
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.DoesNotEqual)} AND [property].[value] <> [filter].[Value])
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.Contains)} AND CHARINDEX([filter].[Value], [property].[value]) > 0)
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.DoesNotContain)} AND CHARINDEX([filter].[Value], [property].[value]) = 0)
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.GreaterThan)} AND TRY_CONVERT(decimal(38, 10), [property].[value]) > TRY_CONVERT(decimal(38, 10), [filter].[Value]))
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.GreaterThanOrEqual)} AND TRY_CONVERT(decimal(38, 10), [property].[value]) >= TRY_CONVERT(decimal(38, 10), [filter].[Value]))
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.LessThan)} AND TRY_CONVERT(decimal(38, 10), [property].[value]) < TRY_CONVERT(decimal(38, 10), [filter].[Value]))
+                        OR ([filter].[Operator] = {nameof(LogFilterOperator.LessThanOrEqual)} AND TRY_CONVERT(decimal(38, 10), [property].[value]) <= TRY_CONVERT(decimal(38, 10), [filter].[Value]))
                     )
                 )
                 """)
@@ -83,7 +83,7 @@ public class LogService : ILogService
 
         var count = await query.CountAsync();
 
-        if (searchParameters.NewestFirst)
+        if (searchParameters.SortDirection == SortDirection.Descending)
         {
             query = query.OrderByDescending(log => log.TimeStamp).ThenByDescending(log => log.Id);
         }

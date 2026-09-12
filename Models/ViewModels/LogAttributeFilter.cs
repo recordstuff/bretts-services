@@ -7,6 +7,7 @@ public record LogAttributeFilter
     public string Attribute { get; set; } = string.Empty;
 
     /// <summary>Gets or sets the comparison to apply.</summary>
+    [EnumDataType(typeof(LogFilterOperator))]
     public LogFilterOperator Operator { get; set; }
 
     /// <summary>Gets or sets the comparison value. Existence operators do not use it.</summary>
