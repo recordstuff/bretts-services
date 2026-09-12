@@ -245,7 +245,7 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.DefaultModelsExpandDepth(2);
-    options.InjectStylesheet("/swagger-custom.css?v=professional-theme");
+    options.InjectStylesheet("/swagger-custom.css?v=adaptive-theme");
     options.InjectJavascript("/swagger-custom.js?v=docker-cli-copy");
 });
 
