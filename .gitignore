@@ -12,6 +12,7 @@
 
 # Local production secret files
 /secrets/
+db.env
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

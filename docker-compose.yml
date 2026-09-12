@@ -1,24 +1,73 @@
 # docker-compose.yml
- 
+
 services:
-# Service name is api-app
-  api-app:
-# build from Dockerfile
-    build: .
-# restart unless stopped for start on boot
+
+  # SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
     restart: unless-stopped
-# expose 3001 as hosting port & 3001 in container port.  Apache handles 8080 to 3001
+
     ports:
-    - 3001:3001
+      - 1433:1433
+
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q \"SELECT 1\" || exit 1"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+
+  # Service name is api-app
+  api-app:
+
+    # Build from Dockerfile
+    build: .
+
+    # Restart unless stopped for start on boot
+    restart: unless-stopped
+
+    # Expose 3001 as hosting port & 3001 in container port.
+    # Apache handles 8080 to 3001
+    ports:
+      - 3001:3001
+
+    # Do not start until SQL Server is ready
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
     secrets:
-    - ConnectionStrings__BrettsDbConnection
-    - ConnectionStrings__JunkEmailCleanerDbConnection
-    - UserOptions__SigningKey
+      - ConnectionStrings__BrettsDbConnection
+      - ConnectionStrings__JunkEmailCleanerDbConnection
+      - UserOptions__SigningKey
+
 
 secrets:
+
   ConnectionStrings__BrettsDbConnection:
     file: ./secrets/ConnectionStrings__BrettsDbConnection
+
   ConnectionStrings__JunkEmailCleanerDbConnection:
     file: ./secrets/ConnectionStrings__JunkEmailCleanerDbConnection
+
   UserOptions__SigningKey:
     file: ./secrets/UserOptions__SigningKey
+
+
+# Existing SQL Server data volume
+volumes:
+  mssql-data:
+    external: true
