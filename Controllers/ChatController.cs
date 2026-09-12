@@ -1,7 +1,7 @@
 ﻿namespace bretts_services.Controllers;
 
 /// <summary>
-/// Provides streaming chat and model-management endpoints backed by LM Studio.
+/// Provides streaming chat and model-management endpoints backed by LM Studio's headless server, llmster.
 /// </summary>
 [Authorize(Roles = "Admin")]
 [ApiController]
@@ -70,7 +70,7 @@ public class ChatController : ControllerBase
     /// The current language model was found and its model key is returned.
     /// </response>
     /// <response code="500">
-    /// No language model is loaded or LM Studio could not return its model list.
+    /// No language model is loaded or LM Studio (llmstr) could not return its model list.
     /// </response>
     [AllowAnonymous]
     [HttpGet]
@@ -83,7 +83,7 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
-    /// Returns the model keys for language models available in LM Studio.
+    /// Returns the model keys for language models available in LM Studio (llmstr).
     /// </summary>
     /// <returns>
     /// The model keys that can be passed to <see cref="ChangeLoadedModel"/>.
@@ -95,7 +95,7 @@ public class ChatController : ControllerBase
     /// The available language models were returned.
     /// </response>
     /// <response code="500">
-    /// LM Studio could not return its model list.
+    /// LM Studio (llmstr) could not return its model list.
     /// </response>
     [AllowAnonymous]
     [HttpGet("availablemodels")]
@@ -111,7 +111,7 @@ public class ChatController : ControllerBase
     /// Makes the requested language model the current model.
     /// </summary>
     /// <param name="model">
-    /// The LM Studio model key to load, sent as a JSON string. Use a key returned by
+    /// The LM Studio (llmstr) model key to load, sent as a JSON string. Use a key returned by
     /// <see cref="GetAvailableModels"/>.
     /// </param>
     /// <returns>
@@ -130,10 +130,10 @@ public class ChatController : ControllerBase
     /// The model key was empty or contained only whitespace.
     /// </response>
     /// <response code="404">
-    /// The requested language model is not available in LM Studio.
+    /// The requested language model is not available in LM Studio (llmstr).
     /// </response>
     /// <response code="500">
-    /// LM Studio could not unload the current model or load the requested model.
+    /// LM Studio (llmstr) could not unload the current model or load the requested model.
     /// </response>
     [AllowAnonymous]
     [HttpPut("loadedmodel")]
