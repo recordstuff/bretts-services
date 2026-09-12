@@ -1,50 +1,173 @@
-using bretts_services.Models;
+using bretts_services.Models.ViewModels;
+using System.Text.Json;
 
 namespace bretts_services.Controllers;
 
-/// <summary>
-/// Provides administrative access to application log entries.
-/// </summary>
+/// <summary>Provides administrative CRUD and search access to application log entries.</summary>
 [Authorize(Roles = "Admin")]
 [ApiController]
 [Route("[controller]")]
 public class LogController : ControllerBase
 {
-    private readonly ILogger<LogController> _logger;
     private readonly ILogService _logService;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LogController"/> class.
-    /// </summary>
-    /// <param name="logger">The controller logger.</param>
-    /// <param name="logService">The service used to retrieve application logs.</param>
-    public LogController(ILogger<LogController> logger, ILogService logService)
+    /// <summary>Initializes a new instance of the <see cref="LogController"/> class.</summary>
+    public LogController(ILogService logService)
     {
-        _logger = logger;
         _logService = logService;
     }
 
-    /// <summary>
-    /// Gets all application log entries.
-    /// </summary>
+    /// <summary>Gets a filtered page of application log entries.</summary>
     /// <remarks>
-    /// Returns persisted Serilog entries ordered from oldest to newest. An authenticated user
-    /// with the Admin role is required.
+    /// Free text is matched across the rendered message, template, exception, and complete event JSON.
+    /// Every structured attribute condition must match. Numeric comparison operators ignore values that
+    /// cannot be converted to numbers.
     /// </remarks>
-    /// <returns>The stored application log entries.</returns>
-    /// <response code="200">Returns the application log entries.</response>
-    /// <response code="401">The request does not contain a valid JWT access token.</response>
-    /// <response code="403">The authenticated user does not have the Admin role.</response>
-    /// <response code="500">An unexpected server or database error occurred.</response>
-    [HttpGet("logs")]
-    [ProducesResponseType(typeof(List<Entities.Log>), StatusCodes.Status200OK)]
+    /// <param name="searchParameters">Paging, sorting, time, level, text, and structured attribute filters.</param>
+    /// <returns>A page of matching log entries.</returns>
+    [HttpPost("logs")]
+    [ProducesResponseType(typeof(PaginationResult<Entities.Log>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Roles()
+    public async Task<IActionResult> Logs(LogSearchParameters searchParameters)
     {
-        var logs = await _logService.GetLogs();
+        var invalidFilter = searchParameters.AttributeFilters.Any(filter =>
+            string.IsNullOrWhiteSpace(filter.Attribute)
+            || (filter.Operator != LogFilterOperator.Exists
+                && filter.Operator != LogFilterOperator.DoesNotExist
+                && string.IsNullOrWhiteSpace(filter.Value)));
 
-        return Ok(logs);
+        if (invalidFilter)
+        {
+            return BadRequest("Every attribute filter requires an attribute, and comparison operators require a value.");
+        }
+
+        if (searchParameters.From > searchParameters.To)
+        {
+            return BadRequest("From must be earlier than or equal to To.");
+        }
+
+        return Ok(await _logService.GetLogs(searchParameters));
+    }
+
+    /// <summary>Gets the distinct structured attributes currently present in stored events.</summary>
+    /// <returns>Attribute names sorted alphabetically.</returns>
+    [HttpGet("attributes")]
+    [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Attributes()
+    {
+        return Ok(await _logService.GetAttributes());
+    }
+
+    /// <summary>Gets one application log entry.</summary>
+    [HttpGet("log/{id:int}")]
+    [ProducesResponseType(typeof(Entities.Log), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Log(int id)
+    {
+        if (id < 1)
+        {
+            return BadRequest("Log ID must be at least 1.");
+        }
+
+        var log = await _logService.GetLog(id);
+        if (log is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(log);
+    }
+
+    /// <summary>Creates an application log entry.</summary>
+    [HttpPost("insert")]
+    [ProducesResponseType(typeof(Entities.Log), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> Insert(Entities.Log log)
+    {
+        if (!IsValidLogEvent(log.LogEvent))
+        {
+            return BadRequest("Log event must contain valid JSON when provided.");
+        }
+
+        var insertedLog = await _logService.InsertLog(log);
+        return CreatedAtAction(nameof(Log), new { id = insertedLog.Id }, insertedLog);
+    }
+
+    /// <summary>Updates an application log entry.</summary>
+    [HttpPost("update")]
+    [ProducesResponseType(typeof(Entities.Log), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(Entities.Log log)
+    {
+        if (log.Id < 1)
+        {
+            return BadRequest("Log ID must be at least 1.");
+        }
+
+        if (!IsValidLogEvent(log.LogEvent))
+        {
+            return BadRequest("Log event must contain valid JSON when provided.");
+        }
+
+        var updatedLog = await _logService.UpdateLog(log);
+        if (updatedLog is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(updatedLog);
+    }
+
+    /// <summary>Deletes an application log entry.</summary>
+    [HttpDelete("delete/{id:int}")]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (id < 1)
+        {
+            return BadRequest("Log ID must be at least 1.");
+        }
+
+        if (!await _logService.DeleteLog(id))
+        {
+            return NotFound();
+        }
+
+        return Ok(true);
+    }
+
+    private static bool IsValidLogEvent(string? logEvent)
+    {
+        if (string.IsNullOrWhiteSpace(logEvent))
+        {
+            return true;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(logEvent);
+            return document.RootElement.ValueKind == JsonValueKind.Object;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 }
