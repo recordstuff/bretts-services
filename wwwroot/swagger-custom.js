@@ -23,7 +23,7 @@
 
         const description = document.createElement("p");
         description.className = "brett-swagger-header__description";
-        description.textContent = "This is Brett Drake's .NET API backend project using JWT Auth. The API hits a SQL Server instance running in another Docker container all running on LINUX's Docker Desktop. Although it would not ordinarily be enabled on a Production build, this Swagger page is enabled here to demonstrate the C# sample.  Post to /User/Login and then use the returned Token with Swagger's Authorize button below to save your Bearer Token for authenticated calls.";
+        description.textContent = "This is Brett Drake's .NET API backend project using JWT Auth. The API connects to a SQL Server instance running in another container. The containers run with Docker Engine on Linux and are managed through the Docker CLI. Although it would not ordinarily be enabled on a production build, this Swagger page is enabled here to demonstrate the C# sample. Post to /User/Login and then use the returned token with Swagger's Authorize button below to save your bearer token for authenticated calls.";
 
         const githubLink = document.createElement("a");
         githubLink.className = "brett-swagger-header__github-link";
