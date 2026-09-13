@@ -40,14 +40,6 @@ if (string.IsNullOrWhiteSpace(connectionString))
         "The ConnectionStrings:BrettsDbConnection secret is required. Configure it with .NET User Secrets for development or a Docker secret for production.");
 }
 
-var junkEmailCleanerConnectionString = builder.Configuration.GetConnectionString("JunkEmailCleanerDbConnection");
-
-if (string.IsNullOrWhiteSpace(junkEmailCleanerConnectionString))
-{
-    throw new InvalidOperationException(
-        "The ConnectionStrings:JunkEmailCleanerDbConnection secret is required. Configure it with .NET User Secrets for development or a Docker secret for production.");
-}
-
 // Serilog
 
 var sinkOptions = new MSSqlServerSinkOptions 
@@ -145,14 +137,6 @@ builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
     options.UseSqlServer(connectionString, providerOptions => providerOptions.EnableRetryOnFailure());
     // default this to on but could start with: options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking); 
     // or could default to QueryTrackingBehavior.NoTrackingWithIdentityResolution
-});
-
-builder.Services.AddDbContext<Entities.JunkEmailCleanerContext>(options =>
-{
-    #if DEBUG
-        options.EnableSensitiveDataLogging();
-    #endif
-    options.UseSqlServer(junkEmailCleanerConnectionString, providerOptions => providerOptions.EnableRetryOnFailure());
 });
 
 // our options and services
