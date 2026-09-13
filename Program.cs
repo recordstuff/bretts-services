@@ -44,7 +44,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 var sinkOptions = new MSSqlServerSinkOptions 
 {
-    AutoCreateSqlTable = true,
+    AutoCreateSqlTable = false,
     TableName = "Logs", 
 };
 
@@ -161,6 +161,7 @@ builder.Services.AddScoped<IChatHistory, SessionChatHistory>();
 
 builder.Services.AddScoped<RoleMapping>();
 builder.Services.AddScoped<UserMapping>();
+builder.Services.AddScoped<LogMapping>();
 
 builder.Services.AddDistributedMemoryCache();
 

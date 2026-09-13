@@ -77,7 +77,7 @@ public class RoleController : ControllerBase
     {
         if (page < 1)
         {
-            return BadRequest("Page must be greater than 1.");
+            return BadRequest("Page must be at least 1.");
         }
 
         var roles = await _roleService.GetRoles(page, pageSize, searchText, sortColumn, sortDirection);

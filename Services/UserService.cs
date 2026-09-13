@@ -18,18 +18,18 @@ public class UserService : ServiceBase, IUserService
         _userMapping = userMapping;
     }
 
-    public async Task<LoginSession> Login(UserCredentials userCredintials)
+    public async Task<LoginSession> Login(UserCredentials userCredentials)
     {
-        userCredintials.Email = userCredintials.Email.ToLower();
+        userCredentials.Email = userCredentials.Email.Trim().ToLowerInvariant();
 
         var user = await _brettsAppContext.Users
             .AsNoTracking()
             .Include(u => u.Roles)
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == userCredintials.Email);
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == userCredentials.Email);
 
         if (user is null) return new LoginSession();
 
-        if (!Hashing.Verify(userCredintials.Password, user.Password, user.Salt)) return new LoginSession();
+        if (!Hashing.Verify(userCredentials.Password, user.Password, user.Salt)) return new LoginSession();
 
         var roles = user.Roles.ToList();
 
@@ -44,7 +44,7 @@ public class UserService : ServiceBase, IUserService
         
         if (searchText != null)
         {
-            searchText = searchText.ToLower();
+            searchText = searchText.ToLowerInvariant();
 
             query = query.Where(u => u.Email.ToLower().Contains(searchText)
                                   || (u.DisplayName != null && u.DisplayName.ToLower().Contains(searchText)));
@@ -116,12 +116,11 @@ public class UserService : ServiceBase, IUserService
 
     public async Task<UserSaveResult> InsertUser(UserNew user)
     {
-        user.Email = user.Email.Trim().ToLower();
+        user.Email = user.Email.Trim().ToLowerInvariant();
 
         var existingUser = await _brettsAppContext.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email 
-                                   || u.UserGuid == user.Guid);
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == user.Email);
 
         if (existingUser != null)
         {
@@ -164,7 +163,7 @@ public class UserService : ServiceBase, IUserService
             return new UserSaveResult { Status = UserSaveStatus.UserNotFound };
         }
 
-        user.Email = user.Email.Trim().ToLower();
+        user.Email = user.Email.Trim().ToLowerInvariant();
 
         var emailIsInUse = await _brettsAppContext.Users
             .AsNoTracking()

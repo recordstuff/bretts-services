@@ -23,12 +23,12 @@ public partial class UserMapping
     [MapProperty(nameof(User.UserGuid), nameof(UserDetail.Guid))]
     public partial UserDetail ToUserDetail(User user);
 
-    [MapProperty(nameof(UserDetail.Guid), nameof(User.UserGuid))]
     [MapperIgnoreTarget(nameof(User.UserID))]
+    [MapperIgnoreTarget(nameof(User.UserGuid))]
     [MapperIgnoreTarget(nameof(User.Password))]
     [MapperIgnoreTarget(nameof(User.Salt))]
     [MapperIgnoreTarget(nameof(User.CreatedAt))]
-    public partial User ToUser(UserDetail userDetail);
+    public partial User ToUser(UserNew userNew);
 
     [MapProperty(nameof(UserDetail.Guid), nameof(User.UserGuid))]
     [MapperIgnoreTarget(nameof(User.UserID))]

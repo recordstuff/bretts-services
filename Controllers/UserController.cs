@@ -92,7 +92,7 @@ public class UserController : ControllerBase
     {
         if (page < 1)
         {
-            return BadRequest("Page must be greater than 1.");
+            return BadRequest("Page must be at least 1.");
         }
 
         var paginationResult = await _userService.GetUsers(page, pageSize, searchText, roleFilter, sortColumn, sortDirection);
@@ -116,7 +116,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Users(Guid guid)
+    public async Task<IActionResult> GetUser(Guid guid)
     {
         var user = await _userService.GetUser(guid);
 
@@ -212,7 +212,7 @@ public class UserController : ControllerBase
     /// <param name="userDetail">The complete editable user details and role assignments.</param>
     /// <returns>The updated user details.</returns>
     /// <response code="200">The user was updated successfully.</response>
-    /// <response code="400">The request is invalid or the user does not exist.</response>
+    /// <response code="400">The request is invalid.</response>
     /// <response code="401">The request does not contain a valid JWT access token.</response>
     /// <response code="403">The authenticated user does not have the Admin role.</response>
     /// <response code="409">Another user already has the supplied email address.</response>
@@ -222,6 +222,7 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Update(UserDetail userDetail)
@@ -230,7 +231,7 @@ public class UserController : ControllerBase
          || string.IsNullOrWhiteSpace(userDetail.DisplayName)
          || userDetail.Guid == Guid.Empty)
         {
-            return BadRequest();
+            return NotFound();
         }
 
         var saveResult = await _userService.UpdateUser(userDetail);

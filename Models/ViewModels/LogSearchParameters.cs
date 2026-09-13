@@ -24,9 +24,14 @@ public record LogSearchParameters
     public DateTime? To { get; set; }
 
     /// <summary>Gets or sets an optional exact Serilog level.</summary>
-    public string? Level { get; set; }
+    [EnumDataType(typeof(LogEventLevel))]
+    public LogEventLevel? Level { get; set; }
 
-    /// <summary>Gets or sets the timestamp sort direction.</summary>
+    /// <summary>Gets or sets the column used to sort the results.</summary>
+    [EnumDataType(typeof(LogsSortColumn))]
+    public LogsSortColumn SortColumn { get; set; } = LogsSortColumn.TimeStamp;
+
+    /// <summary>Gets or sets the sort direction.</summary>
     [EnumDataType(typeof(SortDirection))]
     public SortDirection SortDirection { get; set; } = SortDirection.Descending;
 
