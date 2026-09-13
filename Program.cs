@@ -161,6 +161,7 @@ builder.Services.AddScoped<IChatHistory, SessionChatHistory>();
 
 builder.Services.AddScoped<RoleMapping>();
 builder.Services.AddScoped<UserMapping>();
+builder.Services.AddScoped<LogMapping>();
 
 builder.Services.AddDistributedMemoryCache();
 

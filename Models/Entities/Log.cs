@@ -11,6 +11,11 @@ public class Log
     public int Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the public identifier for the log entry.
+    /// </summary>
+    public Guid LogGuid { get; set; }
+
+    /// <summary>
     /// Gets or sets the rendered log message.
     /// </summary>
     public string? Message { get; set; }
@@ -23,7 +28,7 @@ public class Log
     /// <summary>
     /// Gets or sets the Serilog severity level.
     /// </summary>
-    public string? Level { get; set; }
+    public Serilog.Events.LogEventLevel? Level { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time at which the event was recorded.

@@ -26,7 +26,7 @@ public class LogController : ControllerBase
     /// <param name="searchParameters">Paging, sorting, time, level, text, and structured attribute filters.</param>
     /// <returns>A page of matching log entries.</returns>
     [HttpPost("logs")]
-    [ProducesResponseType(typeof(PaginationResult<Entities.Log>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaginationResult<LogSummary>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -65,20 +65,20 @@ public class LogController : ControllerBase
     }
 
     /// <summary>Gets one application log entry.</summary>
-    [HttpGet("log/{id:int}")]
-    [ProducesResponseType(typeof(Entities.Log), StatusCodes.Status200OK)]
+    [HttpGet("log/{guid}")]
+    [ProducesResponseType(typeof(LogDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Log(int id)
+    public async Task<IActionResult> Log(Guid guid)
     {
-        if (id < 1)
+        if (guid == Guid.Empty)
         {
-            return BadRequest("Log ID must be at least 1.");
+            return BadRequest("Log identifier cannot be empty.");
         }
 
-        var log = await _logService.GetLog(id);
+        var log = await _logService.GetLog(guid);
         if (log is null)
         {
             return NotFound();
@@ -89,10 +89,10 @@ public class LogController : ControllerBase
 
     /// <summary>Creates an application log entry.</summary>
     [HttpPost("insert")]
-    [ProducesResponseType(typeof(Entities.Log), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(LogDetail), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Insert(Entities.Log log)
+    public async Task<IActionResult> Insert(LogDetail log)
     {
         if (!IsValidLogEvent(log.LogEvent))
         {
@@ -100,21 +100,21 @@ public class LogController : ControllerBase
         }
 
         var insertedLog = await _logService.InsertLog(log);
-        return CreatedAtAction(nameof(Log), new { id = insertedLog.Id }, insertedLog);
+        return CreatedAtAction(nameof(Log), new { guid = insertedLog.Guid }, insertedLog);
     }
 
     /// <summary>Updates an application log entry.</summary>
     [HttpPost("update")]
-    [ProducesResponseType(typeof(Entities.Log), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LogDetail), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Entities.Log log)
+    public async Task<IActionResult> Update(LogDetail log)
     {
-        if (log.Id < 1)
+        if (log.Guid == Guid.Empty)
         {
-            return BadRequest("Log ID must be at least 1.");
+            return BadRequest("Log identifier cannot be empty.");
         }
 
         if (!IsValidLogEvent(log.LogEvent))
@@ -132,20 +132,20 @@ public class LogController : ControllerBase
     }
 
     /// <summary>Deletes an application log entry.</summary>
-    [HttpDelete("delete/{id:int}")]
+    [HttpDelete("delete/{guid}")]
     [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid guid)
     {
-        if (id < 1)
+        if (guid == Guid.Empty)
         {
-            return BadRequest("Log ID must be at least 1.");
+            return BadRequest("Log identifier cannot be empty.");
         }
 
-        if (!await _logService.DeleteLog(id))
+        if (!await _logService.DeleteLog(guid))
         {
             return NotFound();
         }

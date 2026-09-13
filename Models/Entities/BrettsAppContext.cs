@@ -20,7 +20,12 @@ public partial class BrettsAppContext : DbContext
 
             entity.HasIndex(e => e.TimeStamp, "IX1_Logs");
 
+            entity.HasIndex(e => e.LogGuid)
+                .IsUnique();
+
             entity.Property(e => e.Environment).IsUnicode(false);
+            entity.Property(e => e.Level).HasConversion<string>();
+            entity.Property(e => e.LogGuid).HasDefaultValueSql("NEWID()");
             entity.Property(e => e.ServerName).IsUnicode(false);
             entity.Property(e => e.SourceContext).IsUnicode(false);
             entity.Property(e => e.TimeStamp).HasColumnType("datetime");
