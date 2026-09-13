@@ -44,7 +44,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 var sinkOptions = new MSSqlServerSinkOptions 
 {
-    AutoCreateSqlTable = true,
+    AutoCreateSqlTable = false,
     TableName = "Logs", 
 };
 
