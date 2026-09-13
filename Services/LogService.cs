@@ -1,3 +1,4 @@
+using bretts_services.Mappings;
 using bretts_services.Models.Entities;
 using bretts_services.Models.ViewModels;
 using System.Text.Json;
@@ -7,13 +8,15 @@ namespace bretts_services.Services;
 public class LogService : ILogService
 {
     private readonly BrettsAppContext _brettsAppContext;
+    private readonly LogMapping _logMapping;
 
-    public LogService(BrettsAppContext brettsAppContext)
+    public LogService(BrettsAppContext brettsAppContext, LogMapping logMapping)
     {
         _brettsAppContext = brettsAppContext;
+        _logMapping = logMapping;
     }
 
-    public async Task<PaginationResult<Entities.Log>> GetLogs(LogSearchParameters searchParameters)
+    public async Task<PaginationResult<LogSummary>> GetLogs(LogSearchParameters searchParameters)
     {
         var attributeFiltersJson = JsonSerializer.Serialize(searchParameters.AttributeFilters);
         var query = _brettsAppContext.Logs
@@ -76,9 +79,10 @@ public class LogService : ILogService
             query = query.Where(log => log.TimeStamp <= searchParameters.To.Value);
         }
 
-        if (!string.IsNullOrWhiteSpace(searchParameters.Level))
+        if (searchParameters.Level.HasValue)
         {
-            query = query.Where(log => log.Level == searchParameters.Level);
+            var level = _logMapping.ToSerilogLogEventLevel(searchParameters.Level.Value);
+            query = query.Where(log => log.Level == level);
         }
 
         var count = await query.CountAsync();
@@ -97,12 +101,12 @@ public class LogService : ILogService
             .Take(searchParameters.PageSize)
             .ToListAsync();
 
-        return new PaginationResult<Entities.Log>
+        return new PaginationResult<LogSummary>
         {
             Page = searchParameters.Page,
             PageCount = (int)Math.Ceiling((double)count / searchParameters.PageSize),
             ItemCount = count,
-            Items = logs,
+            Items = _logMapping.ToLogSummaries(logs),
         };
     }
 
@@ -122,44 +126,46 @@ public class LogService : ILogService
             .ToListAsync();
     }
 
-    public Task<Entities.Log?> GetLog(int id)
+    public async Task<LogDetail?> GetLog(Guid guid)
     {
-        return _brettsAppContext.Logs.AsNoTracking().SingleOrDefaultAsync(log => log.Id == id);
+        var log = await _brettsAppContext.Logs
+            .AsNoTracking()
+            .SingleOrDefaultAsync(log => log.LogGuid == guid);
+
+        if (log is null)
+        {
+            return null;
+        }
+
+        return _logMapping.ToLogDetail(log);
     }
 
-    public async Task<Entities.Log> InsertLog(Entities.Log log)
+    public async Task<LogDetail> InsertLog(LogDetail logDetail)
     {
-        log.Id = 0;
+        var log = _logMapping.ToLog(logDetail);
         _brettsAppContext.Logs.Add(log);
         await _brettsAppContext.SaveChangesAsync();
-        return log;
+        return _logMapping.ToLogDetail(log);
     }
 
-    public async Task<Entities.Log?> UpdateLog(Entities.Log log)
+    public async Task<LogDetail?> UpdateLog(LogDetail logDetail)
     {
-        var storedLog = await _brettsAppContext.Logs.SingleOrDefaultAsync(candidate => candidate.Id == log.Id);
+        var storedLog = await _brettsAppContext.Logs
+            .SingleOrDefaultAsync(candidate => candidate.LogGuid == logDetail.Guid);
 
         if (storedLog is null)
         {
             return null;
         }
 
-        storedLog.Message = log.Message;
-        storedLog.MessageTemplate = log.MessageTemplate;
-        storedLog.Level = log.Level;
-        storedLog.TimeStamp = log.TimeStamp;
-        storedLog.Exception = log.Exception;
-        storedLog.LogEvent = log.LogEvent;
-        storedLog.SourceContext = log.SourceContext;
-        storedLog.ServerName = log.ServerName;
-        storedLog.Environment = log.Environment;
+        _logMapping.UpdateLog(logDetail, storedLog);
         await _brettsAppContext.SaveChangesAsync();
-        return storedLog;
+        return _logMapping.ToLogDetail(storedLog);
     }
 
-    public async Task<bool> DeleteLog(int id)
+    public async Task<bool> DeleteLog(Guid guid)
     {
-        var log = await _brettsAppContext.Logs.SingleOrDefaultAsync(candidate => candidate.Id == id);
+        var log = await _brettsAppContext.Logs.SingleOrDefaultAsync(candidate => candidate.LogGuid == guid);
 
         if (log is null)
         {
