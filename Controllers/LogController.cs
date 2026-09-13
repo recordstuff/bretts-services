@@ -23,7 +23,7 @@ public class LogController : ControllerBase
     /// Every structured attribute condition must match. Numeric comparison operators ignore values that
     /// cannot be converted to numbers.
     /// </remarks>
-    /// <param name="searchParameters">Paging, sorting, time, level, text, and structured attribute filters.</param>
+    /// <param name="searchParameters">Paging, sort column, sort direction, time, level, text, and structured attribute filters.</param>
     /// <returns>A page of matching log entries.</returns>
     [HttpPost("logs")]
     [ProducesResponseType(typeof(PaginationResult<LogSummary>), StatusCodes.Status200OK)]

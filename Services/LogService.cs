@@ -89,11 +89,27 @@ public class LogService : ILogService
 
         if (searchParameters.SortDirection == SortDirection.Descending)
         {
-            query = query.OrderByDescending(log => log.TimeStamp).ThenByDescending(log => log.Id);
+            query = searchParameters.SortColumn switch
+            {
+                LogsSortColumn.Id => query.OrderByDescending(log => log.LogGuid),
+                LogsSortColumn.TimeStamp => query.OrderByDescending(log => log.TimeStamp).ThenByDescending(log => log.Id),
+                LogsSortColumn.Level => query.OrderByDescending(log => log.Level).ThenByDescending(log => log.Id),
+                LogsSortColumn.Message => query.OrderByDescending(log => log.Message).ThenByDescending(log => log.Id),
+                LogsSortColumn.SourceContext => query.OrderByDescending(log => log.SourceContext).ThenByDescending(log => log.Id),
+                _ => query,
+            };
         }
         else
         {
-            query = query.OrderBy(log => log.TimeStamp).ThenBy(log => log.Id);
+            query = searchParameters.SortColumn switch
+            {
+                LogsSortColumn.Id => query.OrderBy(log => log.LogGuid),
+                LogsSortColumn.TimeStamp => query.OrderBy(log => log.TimeStamp).ThenBy(log => log.Id),
+                LogsSortColumn.Level => query.OrderBy(log => log.Level).ThenBy(log => log.Id),
+                LogsSortColumn.Message => query.OrderBy(log => log.Message).ThenBy(log => log.Id),
+                LogsSortColumn.SourceContext => query.OrderBy(log => log.SourceContext).ThenBy(log => log.Id),
+                _ => query,
+            };
         }
 
         var logs = await query
