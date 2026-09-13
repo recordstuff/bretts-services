@@ -4,7 +4,7 @@ namespace bretts_services.Interfaces;
 
 public interface IUserService
 {
-    Task<LoginSession> Login(UserCredentials userCredintials);
+    Task<LoginSession> Login(UserCredentials userCredentials);
 
     Task<PaginationResult<UserSummary>> GetUsers(int page, int pageSize, string? searchText, Roles roleFilter,
         UsersSortColumn sortColumn = UsersSortColumn.DisplayName, SortDirection sortDirection = SortDirection.Ascending);

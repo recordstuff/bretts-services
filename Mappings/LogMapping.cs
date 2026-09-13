@@ -20,7 +20,7 @@ public partial class LogMapping
 
     [MapperIgnoreTarget(nameof(LogEntity.Id))]
     [MapperIgnoreTarget(nameof(LogEntity.LogGuid))]
-    public partial LogEntity ToLog(LogDetail logDetail);
+    public partial LogEntity ToLog(LogNew logNew);
 
     [MapperIgnoreTarget(nameof(LogEntity.Id))]
     [MapperIgnoreTarget(nameof(LogEntity.LogGuid))]

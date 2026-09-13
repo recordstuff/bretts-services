@@ -140,9 +140,9 @@ public class LogService : ILogService
         return _logMapping.ToLogDetail(log);
     }
 
-    public async Task<LogDetail> InsertLog(LogDetail logDetail)
+    public async Task<LogDetail> InsertLog(LogNew logNew)
     {
-        var log = _logMapping.ToLog(logDetail);
+        var log = _logMapping.ToLog(logNew);
         _brettsAppContext.Logs.Add(log);
         await _brettsAppContext.SaveChangesAsync();
         return _logMapping.ToLogDetail(log);

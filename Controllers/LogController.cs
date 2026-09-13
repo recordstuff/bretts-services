@@ -92,7 +92,7 @@ public class LogController : ControllerBase
     [ProducesResponseType(typeof(LogDetail), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> Insert(LogDetail log)
+    public async Task<IActionResult> Insert(LogNew log)
     {
         if (!IsValidLogEvent(log.LogEvent))
         {
