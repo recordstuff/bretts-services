@@ -6,6 +6,16 @@
     --swagger-blue: #315f7d;
     --swagger-blue-dark: #244962;
     --swagger-line: #d8e0e7;
+    --swagger-heading: #1e3445;
+    --swagger-summary: #34495a;
+    --swagger-portrait-line: #b7c7d3;
+    --swagger-portrait-background: #eef3f6;
+    --swagger-link-line: #a9bdca;
+    --swagger-focus: #557f9b;
+    --swagger-topbar: #244962;
+    --swagger-topbar-line: #132d40;
+    --swagger-shadow: rgb(36 73 98 / 8%);
+    --swagger-icon-filter: none;
 }
 
 html,
@@ -23,8 +33,8 @@ body {
 }
 
 .swagger-ui .topbar {
-    border-bottom: 1px solid #132d40;
-    background: var(--swagger-blue-dark);
+    border-bottom: 1px solid var(--swagger-topbar-line);
+    background: var(--swagger-topbar);
     box-shadow: 0 2px 8px rgb(21 45 62 / 18%);
 }
 
@@ -51,7 +61,7 @@ body {
     border: 1px solid var(--swagger-line);
     border-radius: 10px;
     background: var(--swagger-surface);
-    box-shadow: 0 8px 24px rgb(36 73 98 / 8%);
+    box-shadow: 0 8px 24px var(--swagger-shadow);
     color: var(--swagger-text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -62,9 +72,9 @@ body {
     align-self: start;
     box-sizing: border-box;
     padding: 3px;
-    border: 1px solid #b7c7d3;
+    border: 1px solid var(--swagger-portrait-line);
     border-radius: 50%;
-    background: #eef3f6;
+    background: var(--swagger-portrait-background);
 }
 
 .swagger-ui .brett-swagger-header__portrait {
@@ -83,7 +93,7 @@ body {
 
 .swagger-ui .brett-swagger-header__title {
     margin: 0;
-    color: #1e3445;
+    color: var(--swagger-heading);
     font-family: inherit;
     font-size: clamp(1.6rem, 3vw, 2.25rem);
     font-weight: 650;
@@ -103,7 +113,7 @@ body {
     color: var(--swagger-blue);
     font-weight: 600;
     text-decoration: underline;
-    text-decoration-color: #a9bdca;
+    text-decoration-color: var(--swagger-link-line);
     text-underline-offset: 3px;
 }
 
@@ -128,7 +138,7 @@ body {
 .brett-swagger-header__site-link:focus-visible,
 .swagger-ui .brett-swagger-header__github-link:focus-visible {
     border-radius: 3px;
-    outline: 2px solid #557f9b;
+    outline: 2px solid var(--swagger-focus);
     outline-offset: 3px;
 }
 
@@ -136,6 +146,7 @@ body {
     width: 16px;
     height: 16px;
     flex: 0 0 auto;
+    filter: var(--swagger-icon-filter);
 }
 
 .swagger-ui .information-container {
@@ -155,7 +166,7 @@ body {
 }
 
 .swagger-ui .opblock .opblock-summary-description {
-    color: #34495a;
+    color: var(--swagger-summary);
 }
 
 .swagger-ui .btn.authorize {
@@ -169,6 +180,29 @@ body {
 
 .swagger-ui section.models {
     border-color: var(--swagger-line);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+        --swagger-page: #11171c;
+        --swagger-surface: #1b232a;
+        --swagger-text: #e7edf2;
+        --swagger-muted: #b5c1ca;
+        --swagger-blue: #8bbbd7;
+        --swagger-blue-dark: #a7cee4;
+        --swagger-line: #3b4a55;
+        --swagger-heading: #f2f6f8;
+        --swagger-summary: #d4dde4;
+        --swagger-portrait-line: #526775;
+        --swagger-portrait-background: #27343d;
+        --swagger-link-line: #68879a;
+        --swagger-focus: #9ac9e4;
+        --swagger-topbar: #172f42;
+        --swagger-topbar-line: #2b4b61;
+        --swagger-shadow: rgb(0 0 0 / 28%);
+        --swagger-icon-filter: invert(1);
+    }
 }
 
 @media (max-width: 680px) {

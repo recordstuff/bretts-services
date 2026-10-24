@@ -58,6 +58,11 @@ namespace bretts_services.Migrations
                     b.Property<string>("LogEvent")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("LogGuid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
                     b.Property<string>("Message")
                         .HasColumnType("nvarchar(max)");
 
@@ -78,6 +83,9 @@ namespace bretts_services.Migrations
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("LogGuid")
+                        .IsUnique();
 
                     b.HasIndex(new[] { "TimeStamp" }, "IX1_Logs");
 

@@ -40,19 +40,11 @@ if (string.IsNullOrWhiteSpace(connectionString))
         "The ConnectionStrings:BrettsDbConnection secret is required. Configure it with .NET User Secrets for development or a Docker secret for production.");
 }
 
-var junkEmailCleanerConnectionString = builder.Configuration.GetConnectionString("JunkEmailCleanerDbConnection");
-
-if (string.IsNullOrWhiteSpace(junkEmailCleanerConnectionString))
-{
-    throw new InvalidOperationException(
-        "The ConnectionStrings:JunkEmailCleanerDbConnection secret is required. Configure it with .NET User Secrets for development or a Docker secret for production.");
-}
-
 // Serilog
 
 var sinkOptions = new MSSqlServerSinkOptions 
 {
-    AutoCreateSqlTable = true,
+    AutoCreateSqlTable = false,
     TableName = "Logs", 
 };
 
@@ -147,14 +139,6 @@ builder.Services.AddDbContext<Entities.BrettsAppContext>(options =>
     // or could default to QueryTrackingBehavior.NoTrackingWithIdentityResolution
 });
 
-builder.Services.AddDbContext<Entities.JunkEmailCleanerContext>(options =>
-{
-    #if DEBUG
-        options.EnableSensitiveDataLogging();
-    #endif
-    options.UseSqlServer(junkEmailCleanerConnectionString, providerOptions => providerOptions.EnableRetryOnFailure());
-});
-
 // our options and services
 
 builder.Services.AddHttpClient<LmStudioClient>(client =>
@@ -177,6 +161,7 @@ builder.Services.AddScoped<IChatHistory, SessionChatHistory>();
 
 builder.Services.AddScoped<RoleMapping>();
 builder.Services.AddScoped<UserMapping>();
+builder.Services.AddScoped<LogMapping>();
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -245,7 +230,7 @@ app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
     options.DefaultModelsExpandDepth(2);
-    options.InjectStylesheet("/swagger-custom.css?v=professional-theme");
+    options.InjectStylesheet("/swagger-custom.css?v=adaptive-theme");
     options.InjectJavascript("/swagger-custom.js?v=docker-cli-copy");
 });
 
